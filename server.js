@@ -26,7 +26,7 @@ const server=http.createServer(async(req,res)=>{
     const chunks=[];let size=0;
     for await(const chunk of req){size+=chunk.length;if(size>16384){res.writeHead(413);res.end();return;}chunks.push(chunk);}
     const host=req.headers.host || 'localhost';
-    const request=new Request('http://'+host+req.url,{method:req.method,headers:req.headers,
+    const request=new Request((process.env.RENDER_EXTERNAL_URL || 'http://'+host)+req.url,{method:req.method,headers:req.headers,
       body:chunks.length ? Buffer.concat(chunks):undefined});
     const result=await handle(request,env,ctx,asset);
     res.writeHead(result.status,Object.fromEntries(result.headers));
