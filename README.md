@@ -54,6 +54,6 @@ Default answers use catalog rules. To run the model integration, serve a local O
 
 ## Submission and ownership
 
-The private review URL, source, workflow, schema, workbook, EDA, tests and narrated walkthrough are included. The GitHub repository URL, Google Drive anyone-view link and actual member contribution evidence still belong in the final submission. Supply verified member names, work performed and commit or review evidence here. The archive does not assign contributions to people who have not confirmed them.
+The private review URL, source, workflow, schema, workbook, EDA, tests and narrated walkthrough are included. Review the [GitHub repository](https://github.com/joshigagan822-png/spotify-personalized-ai-memory). The final submission still needs the Google Drive anyone-view link and actual member contribution evidence. Supply verified member names, work performed and commit or review evidence here. The archive does not assign contributions to people who have not confirmed them.
 
 Real listener satisfaction, retention uplift, production identity, provider backup rotation and the two-week controlled validation window require separate evidence.

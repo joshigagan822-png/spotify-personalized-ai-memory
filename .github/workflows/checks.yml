@@ -12,3 +12,12 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: node --check dist/server/index.js
+      - name: Build deployment image
+        run: docker build -t listening-memory:review .
+      - name: Scan deployment image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: listening-memory:review
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '1'
