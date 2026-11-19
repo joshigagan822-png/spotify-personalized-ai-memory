@@ -1,4 +1,5 @@
 FROM node:24-slim
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 WORKDIR /app
 COPY --chown=node:node . .
 RUN mkdir -p runtime && chown node:node runtime
