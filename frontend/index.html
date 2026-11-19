@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101113"><title>Spotify Memory</title>
+  <link rel="stylesheet" href="/style.css"><script type="module" src="/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to workspace</a>
+  <aside class="sidebar">
+    <div class="brand"><span class="sound" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span>Spotify<br> Memory</span></div>
+    <nav aria-label="Workspace">
+      <div class="nav-label">Menu</div>
+      <button data-page="session" aria-current="page"><span data-icon="home"></span>Home</button>
+      <button data-page="memories"><span data-icon="library"></span>Memory controls</button>
+      <div class="nav-label">Workspace</div>
+      <button data-page="quality"><span data-icon="check"></span>Quality review</button>
+      <button data-page="ops"><span data-icon="pulse"></span>Operations</button>
+      <button data-page="policy"><span data-icon="shield"></span>Schema &amp; policy</button>
+    </nav>
+  </aside>
+  <div class="workspace">
+    <header class="top">
+      <label class="search"><span data-icon="search"></span><input id="search" type="search" aria-label="Search music and podcasts" placeholder="Search music and podcasts"></label>
+      <label class="identity"><span data-icon="user"></span><select id="profile" aria-label="Demo listener"><option>Loading…</option></select></label>
+    </header>
+    <main id="main" tabindex="-1"><div id="alert" role="status" aria-live="polite"></div><div id="view"><p>Loading your listening session…</p></div></main>
+  </div>
+  <aside id="now" class="now" aria-label="Latest recommendation" hidden></aside>
+  <dialog id="dialog"><form method="dialog"><button class="close" aria-label="Close dialog">×</button></form><div id="dialogBody"></div></dialog>
+</body></html>

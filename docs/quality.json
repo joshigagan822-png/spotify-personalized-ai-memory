@@ -1,0 +1,1793 @@
+{
+  "total": 81,
+  "passed": 81,
+  "rank_hits": 43,
+  "total_returned": 43,
+  "total_relevant": 43,
+  "precision_at_3": 1,
+  "recall_at_3": 1,
+  "prohibited_returned": 0,
+  "provenance_matches": 37,
+  "context_records": 37,
+  "exact_confidence": 12,
+  "graph_matches": 81,
+  "graph_checks": 81,
+  "extraction_matches": 147,
+  "extraction_checks": 147,
+  "entity_matches": 113,
+  "entity_checks": 113,
+  "validation_passed": 27,
+  "validation_total": 27,
+  "cases": [
+    {
+      "case_id": "G0001",
+      "scenario": "stable_preference",
+      "subject": "U0001",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0001-01",
+        "M0001-02"
+      ],
+      "actual_context": [
+        "M0001-01",
+        "M0001-02"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0002",
+      "scenario": "stable_preference",
+      "subject": "U0002",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0002-01",
+        "M0002-02"
+      ],
+      "actual_context": [
+        "M0002-01",
+        "M0002-02"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0003",
+      "scenario": "stable_preference",
+      "subject": "U0003",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0003-01",
+        "M0003-02"
+      ],
+      "actual_context": [
+        "M0003-01",
+        "M0003-02"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0004",
+      "scenario": "temporary_episode",
+      "subject": "U0004",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0004-01"
+      ],
+      "actual_context": [
+        "M0004-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0005",
+      "scenario": "temporary_episode",
+      "subject": "U0005",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0005-01"
+      ],
+      "actual_context": [
+        "M0005-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0006",
+      "scenario": "temporary_episode",
+      "subject": "U0006",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0006-01"
+      ],
+      "actual_context": [
+        "M0006-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0007",
+      "scenario": "explicit_correction",
+      "subject": "U0007",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0007-02"
+      ],
+      "actual_context": [
+        "M0007-02"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0008",
+      "scenario": "explicit_correction",
+      "subject": "U0008",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0008-02"
+      ],
+      "actual_context": [
+        "M0008-02"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0009",
+      "scenario": "explicit_correction",
+      "subject": "U0009",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0009-02"
+      ],
+      "actual_context": [
+        "M0009-02"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0010",
+      "scenario": "contradictory_behavior",
+      "subject": "U0010",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0010-01"
+      ],
+      "actual_context": [
+        "M0010-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0011",
+      "scenario": "contradictory_behavior",
+      "subject": "U0011",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0011-01"
+      ],
+      "actual_context": [
+        "M0011-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0012",
+      "scenario": "contradictory_behavior",
+      "subject": "U0012",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0012-01"
+      ],
+      "actual_context": [
+        "M0012-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0013",
+      "scenario": "alias_resolution",
+      "subject": "U0013",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0013-01"
+      ],
+      "actual_context": [
+        "M0013-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0014",
+      "scenario": "alias_resolution",
+      "subject": "U0014",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0014-01"
+      ],
+      "actual_context": [
+        "M0014-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0015",
+      "scenario": "alias_resolution",
+      "subject": "U0015",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0015-01"
+      ],
+      "actual_context": [
+        "M0015-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0016",
+      "scenario": "sparse_history",
+      "subject": "U0016",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "insufficient_history",
+      "actual_policy": "insufficient_history"
+    },
+    {
+      "case_id": "G0017",
+      "scenario": "sparse_history",
+      "subject": "U0017",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "insufficient_history",
+      "actual_policy": "insufficient_history"
+    },
+    {
+      "case_id": "G0018",
+      "scenario": "sparse_history",
+      "subject": "U0018",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "insufficient_history",
+      "actual_policy": "insufficient_history"
+    },
+    {
+      "case_id": "G0019",
+      "scenario": "untrusted_stored_text",
+      "subject": "U0019",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "untrusted_content",
+      "actual_policy": "untrusted_content"
+    },
+    {
+      "case_id": "G0020",
+      "scenario": "untrusted_stored_text",
+      "subject": "U0020",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "untrusted_content",
+      "actual_policy": "untrusted_content"
+    },
+    {
+      "case_id": "G0021",
+      "scenario": "untrusted_stored_text",
+      "subject": "U0021",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "untrusted_content",
+      "actual_policy": "untrusted_content"
+    },
+    {
+      "case_id": "G0022",
+      "scenario": "sensitive_inference",
+      "subject": "U0022",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "sensitive_inference_blocked",
+      "actual_policy": "sensitive_inference_blocked"
+    },
+    {
+      "case_id": "G0023",
+      "scenario": "sensitive_inference",
+      "subject": "U0023",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "sensitive_inference_blocked",
+      "actual_policy": "sensitive_inference_blocked"
+    },
+    {
+      "case_id": "G0024",
+      "scenario": "sensitive_inference",
+      "subject": "U0024",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "sensitive_inference_blocked",
+      "actual_policy": "sensitive_inference_blocked"
+    },
+    {
+      "case_id": "G0025",
+      "scenario": "cross_subject",
+      "subject": "U0025",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "authorization_denied",
+      "actual_policy": "authorization_denied"
+    },
+    {
+      "case_id": "G0026",
+      "scenario": "cross_subject",
+      "subject": "U0026",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "authorization_denied",
+      "actual_policy": "authorization_denied"
+    },
+    {
+      "case_id": "G0027",
+      "scenario": "cross_subject",
+      "subject": "U0027",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "authorization_denied",
+      "actual_policy": "authorization_denied"
+    },
+    {
+      "case_id": "G0028",
+      "scenario": "revoked_consent",
+      "subject": "U0028",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "consent_revoked",
+      "actual_policy": "consent_revoked"
+    },
+    {
+      "case_id": "G0029",
+      "scenario": "revoked_consent",
+      "subject": "U0029",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "consent_revoked",
+      "actual_policy": "consent_revoked"
+    },
+    {
+      "case_id": "G0030",
+      "scenario": "revoked_consent",
+      "subject": "U0030",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "consent_revoked",
+      "actual_policy": "consent_revoked"
+    },
+    {
+      "case_id": "G0031",
+      "scenario": "pause_memory",
+      "subject": "U0031",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "memory_paused",
+      "actual_policy": "memory_paused"
+    },
+    {
+      "case_id": "G0032",
+      "scenario": "pause_memory",
+      "subject": "U0032",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "memory_paused",
+      "actual_policy": "memory_paused"
+    },
+    {
+      "case_id": "G0033",
+      "scenario": "pause_memory",
+      "subject": "U0033",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "memory_paused",
+      "actual_policy": "memory_paused"
+    },
+    {
+      "case_id": "G0034",
+      "scenario": "delete_pending",
+      "subject": "U0034",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true,
+        "deletion": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "deletion_pending",
+      "actual_policy": "deletion_pending"
+    },
+    {
+      "case_id": "G0035",
+      "scenario": "delete_pending",
+      "subject": "U0035",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true,
+        "deletion": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "deletion_pending",
+      "actual_policy": "deletion_pending"
+    },
+    {
+      "case_id": "G0036",
+      "scenario": "delete_pending",
+      "subject": "U0036",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true,
+        "deletion": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "deletion_pending",
+      "actual_policy": "deletion_pending"
+    },
+    {
+      "case_id": "G0037",
+      "scenario": "delete_completed",
+      "subject": "U0037",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true,
+        "deletion": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "deleted",
+      "actual_policy": "deleted"
+    },
+    {
+      "case_id": "G0038",
+      "scenario": "delete_completed",
+      "subject": "U0038",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true,
+        "deletion": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "deleted",
+      "actual_policy": "deleted"
+    },
+    {
+      "case_id": "G0039",
+      "scenario": "delete_completed",
+      "subject": "U0039",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true,
+        "deletion": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "deleted",
+      "actual_policy": "deleted"
+    },
+    {
+      "case_id": "G0040",
+      "scenario": "retention_expiry",
+      "subject": "U0040",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "expired",
+      "actual_policy": "expired"
+    },
+    {
+      "case_id": "G0041",
+      "scenario": "retention_expiry",
+      "subject": "U0041",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "expired",
+      "actual_policy": "expired"
+    },
+    {
+      "case_id": "G0042",
+      "scenario": "retention_expiry",
+      "subject": "U0042",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "expired",
+      "actual_policy": "expired"
+    },
+    {
+      "case_id": "G0043",
+      "scenario": "repeated_evidence",
+      "subject": "U0043",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0043-02"
+      ],
+      "actual_context": [
+        "M0043-02"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0044",
+      "scenario": "repeated_evidence",
+      "subject": "U0044",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0044-02"
+      ],
+      "actual_context": [
+        "M0044-02"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0045",
+      "scenario": "repeated_evidence",
+      "subject": "U0045",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0045-02"
+      ],
+      "actual_context": [
+        "M0045-02"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0046",
+      "scenario": "candidate_only",
+      "subject": "U0046",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "confidence_below_threshold",
+      "actual_policy": "confidence_below_threshold"
+    },
+    {
+      "case_id": "G0047",
+      "scenario": "candidate_only",
+      "subject": "U0047",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "confidence_below_threshold",
+      "actual_policy": "confidence_below_threshold"
+    },
+    {
+      "case_id": "G0048",
+      "scenario": "candidate_only",
+      "subject": "U0048",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "confidence_below_threshold",
+      "actual_policy": "confidence_below_threshold"
+    },
+    {
+      "case_id": "G0049",
+      "scenario": "exclusion",
+      "subject": "U0049",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0049-01"
+      ],
+      "actual_context": [
+        "M0049-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0050",
+      "scenario": "exclusion",
+      "subject": "U0050",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0050-01"
+      ],
+      "actual_context": [
+        "M0050-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0051",
+      "scenario": "exclusion",
+      "subject": "U0051",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0051-01"
+      ],
+      "actual_context": [
+        "M0051-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0052",
+      "scenario": "surface_policy",
+      "subject": "U0052",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "outside_surface_scope",
+      "actual_policy": "outside_surface_scope"
+    },
+    {
+      "case_id": "G0053",
+      "scenario": "surface_policy",
+      "subject": "U0053",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "outside_surface_scope",
+      "actual_policy": "outside_surface_scope"
+    },
+    {
+      "case_id": "G0054",
+      "scenario": "surface_policy",
+      "subject": "U0054",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "outside_surface_scope",
+      "actual_policy": "outside_surface_scope"
+    },
+    {
+      "case_id": "G0055",
+      "scenario": "dependency_timeout",
+      "subject": "U0055",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "dependency_timeout",
+      "actual_policy": "dependency_timeout"
+    },
+    {
+      "case_id": "G0056",
+      "scenario": "dependency_timeout",
+      "subject": "U0056",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "dependency_timeout",
+      "actual_policy": "dependency_timeout"
+    },
+    {
+      "case_id": "G0057",
+      "scenario": "dependency_timeout",
+      "subject": "U0057",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "dependency_timeout",
+      "actual_policy": "dependency_timeout"
+    },
+    {
+      "case_id": "G0058",
+      "scenario": "duplicate_delivery",
+      "subject": "U0058",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0058-01"
+      ],
+      "actual_context": [
+        "M0058-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0059",
+      "scenario": "duplicate_delivery",
+      "subject": "U0059",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0059-01"
+      ],
+      "actual_context": [
+        "M0059-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0060",
+      "scenario": "duplicate_delivery",
+      "subject": "U0060",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0060-01"
+      ],
+      "actual_context": [
+        "M0060-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0061",
+      "scenario": "context_budget",
+      "subject": "U0061",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0061-01"
+      ],
+      "actual_context": [
+        "M0061-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0062",
+      "scenario": "context_budget",
+      "subject": "U0062",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0062-01"
+      ],
+      "actual_context": [
+        "M0062-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0063",
+      "scenario": "context_budget",
+      "subject": "U0063",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0063-01"
+      ],
+      "actual_context": [
+        "M0063-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0064",
+      "scenario": "memory_disabled",
+      "subject": "U0064",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "experiment_disabled",
+      "actual_policy": "experiment_disabled"
+    },
+    {
+      "case_id": "G0065",
+      "scenario": "memory_disabled",
+      "subject": "U0065",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "experiment_disabled",
+      "actual_policy": "experiment_disabled"
+    },
+    {
+      "case_id": "G0066",
+      "scenario": "memory_disabled",
+      "subject": "U0066",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "experiment_disabled",
+      "actual_policy": "experiment_disabled"
+    },
+    {
+      "case_id": "G0067",
+      "scenario": "age_protection",
+      "subject": "U0067",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "protected_age_band",
+      "actual_policy": "protected_age_band"
+    },
+    {
+      "case_id": "G0068",
+      "scenario": "age_protection",
+      "subject": "U0068",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "protected_age_band",
+      "actual_policy": "protected_age_band"
+    },
+    {
+      "case_id": "G0069",
+      "scenario": "age_protection",
+      "subject": "U0069",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "protected_age_band",
+      "actual_policy": "protected_age_band"
+    },
+    {
+      "case_id": "G0070",
+      "scenario": "feedback_rejection",
+      "subject": "U0070",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0070-01"
+      ],
+      "actual_context": [
+        "M0070-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0071",
+      "scenario": "feedback_rejection",
+      "subject": "U0071",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0071-01"
+      ],
+      "actual_context": [
+        "M0071-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0072",
+      "scenario": "feedback_rejection",
+      "subject": "U0072",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0072-01"
+      ],
+      "actual_context": [
+        "M0072-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0073",
+      "scenario": "market_policy",
+      "subject": "U0073",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "outside_pilot_market",
+      "actual_policy": "outside_pilot_market"
+    },
+    {
+      "case_id": "G0074",
+      "scenario": "market_policy",
+      "subject": "U0074",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "outside_pilot_market",
+      "actual_policy": "outside_pilot_market"
+    },
+    {
+      "case_id": "G0075",
+      "scenario": "market_policy",
+      "subject": "U0075",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "outside_pilot_market",
+      "actual_policy": "outside_pilot_market"
+    },
+    {
+      "case_id": "G0076",
+      "scenario": "pause_then_resume",
+      "subject": "U0076",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0076-01"
+      ],
+      "actual_context": [
+        "M0076-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0077",
+      "scenario": "pause_then_resume",
+      "subject": "U0077",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0077-01"
+      ],
+      "actual_context": [
+        "M0077-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0078",
+      "scenario": "pause_then_resume",
+      "subject": "U0078",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [
+        "M0078-01"
+      ],
+      "actual_context": [
+        "M0078-01"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0079",
+      "scenario": "resume_unfinished_episode",
+      "subject": "U0003",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true,
+        "position": true
+      },
+      "expected_context": [
+        "M0003-03"
+      ],
+      "actual_context": [
+        "M0003-03"
+      ],
+      "mode": "personalized",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0080",
+      "scenario": "subject_memory_export",
+      "subject": "U0001",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true,
+        "export": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "allowed",
+      "actual_policy": "allowed"
+    },
+    {
+      "case_id": "G0081",
+      "scenario": "paired_memory_disabled",
+      "subject": "U0002",
+      "passed": true,
+      "checks": {
+        "rank": true,
+        "context": true,
+        "policy": true,
+        "fallback": true,
+        "control": true,
+        "mode": true,
+        "tokens": true
+      },
+      "expected_context": [],
+      "actual_context": [],
+      "mode": "no_memory",
+      "expected_policy": "experiment_disabled",
+      "actual_policy": "experiment_disabled"
+    }
+  ]
+}

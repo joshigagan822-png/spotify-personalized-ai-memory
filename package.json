@@ -1,0 +1,14 @@
+{
+  "name": "listening-memory",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.js",
+    "dev": "node server.js",
+    "test": "node --test tests/*.test.js",
+    "evaluate": "node scripts/evaluate.js",
+    "build": "node scripts/build.mjs"
+  }
+}

@@ -1,0 +1,7 @@
+runtime
+.git
+dist
+.env
+analysis
+__pycache__
+docs/*.mp4

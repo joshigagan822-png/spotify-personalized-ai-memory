@@ -1,0 +1,31 @@
+
+> listening-memory@1.0.0 test
+> node --test tests/*.test.js
+
+✔ 81 workbook queries pass ranked context, policy and state checks (1.31983ms)
+✔ all 300 histories replay from events with aligned graph and vector records (45.494655ms)
+✔ Hindi and Hinglish inputs resolve a named artist and respect different intents (3.042422ms)
+✔ three independent sessions promote a preference, repeated deliveries do not (0.497367ms)
+✔ an episode dies at its exclusive expiry and its vector is removed (0.646192ms)
+✔ a stale index returns an empty dependency fallback (1.153091ms)
+✔ explicit artist exclusions suppress related tracks (0.731694ms)
+✔ blocked text stays out of the durable queue and structured model proposals are grounded (4.144023ms)
+✔ model accepts an allowed structured response and recovers from invalid output (1.637582ms)
+✔ subject binding applies to tools, traces, exports and same-profile reviewers (25.223031ms)
+✔ MCP initializes, exposes exactly five tool schemas and rejects unknown input fields (6.544346ms)
+✔ correction is idempotent and rejects stale graph versions (7.268779ms)
+✔ deletion revokes access first, then removes content, cache and trace references (6.593303ms)
+✔ pause, resume and opt-out govern capture and invalidate cached results (16.746876ms)
+✔ feedback must identify a memory actually used by the named response (5.710537ms)
+✔ ingestion survives a new worker instance and replay is idempotent (0.69221ms)
+✔ rate limits use independent tool quotas (16.864542ms)
+✔ expired sessions, untrusted origins and conflicting idempotency keys are rejected (7.611387ms)
+✔ embedded browser can open and switch profiles without cookies (5.775791ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 295.602639

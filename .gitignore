@@ -1,0 +1,8 @@
+node_modules/
+runtime/
+dist/
+.env
+__pycache__/
+.ipynb_checkpoints/
+*.sqlite*
+.pytest_cache/
