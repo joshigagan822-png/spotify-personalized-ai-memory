@@ -41,12 +41,8 @@ Open the same local address. The Compose configuration mounts a named volume for
 
 ![Listening desk showing a recommendation and the memories used to produce it](docs/listening-desk.jpg)
 
-**Deletion receipt**
 
-![Deletion receipt showing the application's memory cleanup status](docs/deletion-receipt.jpg)
-
-An [earlier recorded walkthrough](docs/walkthrough.mp4) is also included in the repository.
-
+ 
 ## Architecture
 
 The public Render deployment runs a **Node.js HTTP server in Docker**. It serves the HTML, CSS, browser JavaScript, and backend API from the same application. **SQLite** stores demo sessions and workspace state. The repository also includes a separate Worker build that supports a D1 database binding.
