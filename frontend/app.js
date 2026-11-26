@@ -125,6 +125,15 @@ function artistFor(item) {
   const suffix=item.entity_id.split('_').pop();
   return dashboard.catalog.find(x=>x.entity_id==='artist_'+suffix)?.canonical_name || '';
 }
+function rankingContext(){
+  const votes=dashboard.trackVotes || {};
+  const eligible=dashboard.control==='active' && dashboard.consent==='granted';
+  const preferred=new Set(eligible?memories.filter(m=>m.status==='active' && m.memory_type==='explicit_preference' && m.surface==='listening_ai').map(m=>m.entity_id):[]);
+  const artistBoost=key=>key.startsWith('track_') && preferred.has(key.replace('track_','artist_'));
+  const score=key=>(votes[key]==='more'?2:votes[key]==='less'?-2:0)+Number(artistBoost(key));
+
+  return {score,artistBoost};
+}
 function browseCards() {
   const term=$('#search').value.trim().toLowerCase();
   const podcasts=browseFilter==='podcasts';
@@ -132,7 +141,7 @@ function browseCards() {
   const group=(type)=>catalog.filter(x=>x.entity_type===type && (!term || (x.canonical_name+' '+artistFor(x)).toLowerCase().includes(term)));
   const shelf=group(podcasts?'episode':'playlist').slice(0,term?12:6);
   const votes=dashboard.trackVotes || {};
-  const score=key=>votes[key]==='more'?1:votes[key]==='less'?-1:0;
+  const {score,artistBoost}=rankingContext();
   const rows=(browseFilter==='all' && term?[...group('track'),...group('episode')]:group(podcasts?'episode':'track')).sort((a,b)=>score(b.entity_id)-score(a.entity_id)).slice(0,term?24:6);
   function card(item) {
     const singer=artistFor(item);
@@ -143,7 +152,7 @@ function browseCards() {
     return '<button class="track" data-item="'+esc(item.entity_id)+'">'+recordArt(item)+'<span class="track-copy"><strong>'+esc(item.canonical_name.replace(/^Artist Profile: /,''))+'</strong><small>'+
       esc(item.entity_type==='episode'?'Indian Singer Stories · Podcast':artistFor(item))+'</small></span><span class="track-arrow">'+icon('arrow')+'</span></button>';
   }
-  const feedback=(key,title)=>'<details><summary aria-label="Feedback for '+esc(title)+'">Feedback</summary><small>'+esc(votes[key]==='more'?'Ranked higher from your feedback':votes[key]==='less'?'Ranked lower from your feedback':'Original catalog order')+'</small>'+
+  const feedback=(key,title)=>'<details><summary aria-label="Feedback for '+esc(title)+'">Feedback</summary><small>'+esc(votes[key]==='more'?'Ranked higher from your feedback':votes[key]==='less'?'Ranked lower from your feedback':artistBoost(key)?'Your saved artist preference':'Original catalog order')+'</small>'+
     [['more','More like this'],['less','Less like this'],['undo','Undo']].filter(([v])=>v!=='undo'||votes[key]).map(([v,label])=>'<button class="link" data-vote="'+v+'" data-key="'+esc(key)+'">'+label+'</button>').join('')+'</details>';
   const live=liveQuery===term && !podcasts?[...liveTracks].sort((a,b)=>score('spotify:'+b.id)-score('spotify:'+a.id)):[];
   const remote=live.map(t=>'<div><a class="track" href="https://open.spotify.com/track/'+esc(t.id)+'" target="_blank" rel="noopener noreferrer"><span class="track-copy"><strong>'+esc(t.title)+'</strong><small>'+esc(t.artist)+' · '+esc(t.album)+' · Spotify</small></span></a>'+feedback('spotify:'+t.id,t.title)+'</div>').join('');
@@ -207,12 +216,12 @@ function qualityPage() {
     details('Show all '+q.total+' cases',table(['Case','Scenario','Policy result','Checks'],q.cases.map(r=>[r.case_id,human(r.scenario),human(r.actual_policy),r.passed?'Pass':'Review'])))+'</section>';
 }
 function opsPage(){
-  const m=dashboard.metrics;
+  const m=dashboard.metrics,rankTrack=rankingContext().score;
   view.innerHTML=heading('Operations','Measurements from this demo listener’s workspace.')+
     '<div class="strip">'+metric('Retrieval P95 · target 250 ms',m.p95==null?'—':m.p95+' ms')+metric('Without memory',m.fallbacks+' / '+m.queries)+
     metric('Events in queue',m.queued)+metric('Deletions pending',m.pending_deletions)+'</div>'+
     '<div class="pair"><section class="panel"><h2>Processing</h2>'+table(['Measure','Value'],[
-      ['Tracks rated',Object.keys(dashboard.trackVotes || {}).length],['Latest ingestion lag',m.last_ingestion_lag_ms==null?'No processed event yet':m.last_ingestion_lag_ms+' ms'],
+      ['Tracks rated',Object.keys(dashboard.trackVotes || {}).length],['Searches without results',m.counters.empty_searches || 0],['Unique artists in top five',new Set(dashboard.catalog.filter(x=>x.entity_type==='track').sort((a,b)=>rankTrack(b.entity_id)-rankTrack(a.entity_id)).slice(0,5).map(artistFor)).size],['Latest ingestion lag',m.last_ingestion_lag_ms==null?'No processed event yet':m.last_ingestion_lag_ms+' ms'],
       ['Cache hits / misses',(m.counters.cache_hits || 0)+' / '+(m.counters.cache_misses || 0)],['Graph writes',m.counters.graph_writes || 0],
       ['Write failures',m.counters.write_failures || 0],['P50 / P99 (ms)',(m.p50??'—')+' / '+(m.p99??'—')],['Dead letters',m.dead.length]])+
       m.dead.map(k=>'<button class="secondary" data-act="replay" data-id="'+esc(k)+'">Retry event</button>').join('')+
