@@ -1,3 +1,5 @@
+import {accountSession} from './backend/accounts.js';
+import {createSpotifySearch} from './backend/spotify.js';
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -9,7 +11,8 @@ import {change} from './backend/store.js';
 const root=path.dirname(fileURLToPath(import.meta.url));
 try {process.loadEnvFile(path.join(root,'.env'));} catch(e) {if(e.code!=='ENOENT') throw e;}
 const db=openLocal(process.env.DATABASE_PATH || path.join(root,'runtime','memory.sqlite'));
-const env={DB:db,OLLAMA_URL:process.env.OLLAMA_URL,OLLAMA_MODEL:process.env.OLLAMA_MODEL};
+db.prepare('CREATE TABLE IF NOT EXISTS accounts(email TEXT PRIMARY KEY, subject TEXT UNIQUE NOT NULL, salt TEXT NOT NULL, hash TEXT NOT NULL)').run();
+const env={DB:db,accountSession,spotifySearch:createSpotifySearch(process.env.SPOTIFY_CLIENT_ID,process.env.SPOTIFY_CLIENT_SECRET),OLLAMA_URL:process.env.OLLAMA_URL,OLLAMA_MODEL:process.env.OLLAMA_MODEL};
 const files={'/':['frontend/index.html','text/html'], '/app.js':['frontend/app.js','text/javascript'], '/style.css':['frontend/style.css','text/css']};
 for (let n=1; n<=6; n++) {
   const cover='/art/cover-'+String(n).padStart(2,'0')+'.webp';
