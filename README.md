@@ -4,7 +4,26 @@
 
 For example, a listener can ask what to play next, inspect the preference behind the recommendation, correct their preferred artist, and repeat the same question to see how the answer changes.
 
-**[Open the live application](https://spotify-personalized-ai-memory.onrender.com)** · [Watch the final demo on Google Drive](PASTE_GOOGLE_DRIVE_VIDEO_URL_HERE) · [View the executed EDA notebook](analysis/listening_eda.ipynb)
+**[Open the live application](https://spotify-personalized-ai-memory.onrender.com)** · [View the executed EDA notebook](analysis/listening_eda.ipynb)
+
+## Accounts, catalog search and track feedback
+
+Use the existing listener selector to create a personal account or log in. The adult India pilot starts each account with an empty history and an optional favourite artist. Guest profiles keep their synthetic histories. The Node server stores accounts and listener workspaces in SQLite. For hosted accounts, point `DATABASE_PATH` at a persistent volume and use HTTPS.
+
+To enable Spotify India track searches, configure `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` in the server environment and restart the Node app. Keep credentials out of Git. The existing search box shows local matches immediately and appends available Spotify results. Selecting a Spotify result opens its track on Spotify. Search does not import personal Spotify history or record a playback. Missing credentials, provider timeouts and rate limits leave the local catalog available.
+
+Quick picks ranks tracks using saved artist preferences and explicit track feedback. More and Less adjust the selected track; Undo clears its rating. The Feedback disclosure explains the order. Memory controls also lists ratings for undo. Pausing suppresses ratings and opting out erases them. Operations shows listener-level counts.
+
+### Offline track evaluation
+
+Run `node scripts/evaluate-tracks.js`. The last qualifying synthetic track save or sufficiently completed playback per listener serves as a positive target. Earlier positive events form the popularity baseline. The artist preference and save/skip variants are offline proxies. The latter approximates explicit ratings because the workbook predates the new feedback controls. The calculation excludes ambiguous consent or correction histories and reports users with fewer than two earlier events separately.
+
+| Synthetic sample | Listeners | Popularity Hit Rate@5 | Artist preference | Feedback proxy |
+|---|---:|---:|---:|---:|
+| All eligible | 13 | 0.615 | 0.615 | 0.615 |
+| Sparse history | 13 | 0.615 | 0.615 | 0.615 |
+
+All eligible histories were sparse. This sample shows no measured uplift. Real listener outcomes require separate evaluation.
 
 ## Run locally
 
