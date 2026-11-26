@@ -19,12 +19,15 @@ export async function sessionFor(request,db) {
 export async function startSession(db,subject,previous) {
   const user=demo.users.find(u=>u.subject_id===subject);
   ensure(user,'unknown_demo_profile',404);
-  const reviewer=previous?.reviewer || crypto.randomUUID(), workspace=reviewer+'/'+subject;
+  const reviewer=(previous?.workspace_id?.startsWith('account/') ? null : previous?.reviewer) || crypto.randomUUID(), workspace=reviewer+'/'+subject;
   const history=demo.events.filter(e=>e.subject_id===subject);
   const last=history.filter(e=>e.event_type==='ai_interaction').at(-1);
   const at=new Date(Date.parse(last.received_at)+60000).toISOString();
   const {state}=replay(user,history,at);
   state.clock={at,started:Date.now()};
+  return issueSession(db,workspace,subject,reviewer,state);
+}
+export async function issueSession(db,workspace,subject,reviewer,state) {
   const raw=hex(crypto.getRandomValues(new Uint8Array(32)));
   const hash=await digest(raw);
   await db.batch([
