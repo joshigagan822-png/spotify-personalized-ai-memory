@@ -134,6 +134,27 @@ function rankingContext(){
 
   return {score,artistBoost};
 }
+const spotifyRecordings={
+  track_01:'56zZ48jdyY2oDXHVnwg5Di',
+  track_02:'3KeMulXbLDJBQdY5PZbGEh',
+  track_03:'73y649QhnXdcm6fRdvfraO',
+  track_04:'4vEjxuEWYUumjsHzLYRmBs',
+  track_05:'1DZzMjdKb4BMnssE39fCQV',
+  track_06:'7gCifrxAYQs59IjeHLR0Y0',
+  track_07:'5YsCiZR2Z0Dn4CEKVjeK24',
+  track_08:'6RLW4rhIpAMUjiU6794spO',
+  track_09:'098jYib9xwJFe6W4eIL5Ok',
+  track_10:'2SIqocpRaIpkI4NErcyWK9',
+  track_11:'0IJBuOSuuSgJjM7MMSgLXW',
+  track_12:'6otKKnSdVkg0OYGdJIK9NM'
+};
+function showPlayer(trackId,title){
+  if(!/^[A-Za-z0-9]{22}$/.test(trackId))return;
+  const source='https://open.spotify.com/';
+  modal(title,'<iframe title="'+esc(title)+' on Spotify" src="'+source+'embed/track/'+trackId+'" width="100%" height="152" style="border:0" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"></iframe>'+
+    '<p><a href="'+source+'track/'+trackId+'" target="_blank" rel="noopener noreferrer">Open in Spotify</a></p>');
+}
+dialog.addEventListener('close',()=>dialog.querySelector('iframe')?.remove());
 function browseCards() {
   const term=$('#search').value.trim().toLowerCase();
   const podcasts=browseFilter==='podcasts';
@@ -155,7 +176,7 @@ function browseCards() {
   const feedback=(key,title)=>dashboard.control!=='active' || dashboard.consent!=='granted'?'':'<details><summary aria-label="Feedback for '+esc(title)+'">Feedback</summary><small>'+esc(votes[key]==='more'?'Ranked higher from your feedback':votes[key]==='less'?'Ranked lower from your feedback':artistBoost(key)?'Your saved artist preference':'Original catalog order')+'</small>'+
     [['more','More like this'],['less','Less like this'],['undo','Undo']].filter(([v])=>v!=='undo'||votes[key]).map(([v,label])=>'<button class="link" data-vote="'+v+'" data-key="'+esc(key)+'">'+label+'</button>').join('')+'</details>';
   const live=liveQuery===term && !podcasts?[...liveTracks].sort((a,b)=>score('spotify:'+b.id)-score('spotify:'+a.id)):[];
-  const remote=live.map(t=>'<div><a class="track" href="https://open.spotify.com/track/'+esc(t.id)+'" target="_blank" rel="noopener noreferrer"><span class="track-copy"><strong>'+esc(t.title)+'</strong><small>'+esc(t.artist)+' · '+esc(t.album)+' · Spotify</small></span></a>'+feedback('spotify:'+t.id,t.title)+'</div>').join('');
+  const remote=live.map(t=>'<div><button class="track" data-play="'+esc(t.id)+'"><span class="track-copy"><strong>'+esc(t.title)+'</strong><small>'+esc(t.artist)+' · '+esc(t.album)+' · Spotify</small></span></button>'+feedback('spotify:'+t.id,t.title)+'</div>').join('');
   const none='<p class="empty">No matches. Try an artist or title from the catalog.</p>';
   const shortcuts=[['listening_ai','Discover music','track_01'],['playlist_ai','Build a playlist','playlist_04'],['podcast_ai','Resume a podcast','episode_06']]
     .filter(([key])=>!term && (browseFilter==='all' || (podcasts?key==='podcast_ai':key!=='podcast_ai')));
@@ -332,16 +353,22 @@ async function guard(fn) {
 }
 document.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.play){
+    const track=liveTracks.find(t=>t.id===b.dataset.play);
+    if(track)showPlayer(track.id,track.title);
+    return;
+  }
   if(b.dataset.vote)guard(async()=>{await api('/v1/track-feedback',{track:b.dataset.key,choice:b.dataset.vote});await refresh();await render();});
   if(b.dataset.page)guard(async()=>{page=b.dataset.page;await refresh();await render();window.scrollTo(0,0);});
   if(b.dataset.filter){browseFilter=b.dataset.filter;searchSpotify();view.querySelectorAll('[data-filter]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.filter===browseFilter)));browseCards();}
   if(b.dataset.shortcut)guard(async()=>{surface=b.dataset.shortcut;utterance=example[surface];await run();$('#request-panel').focus();});
   if(b.dataset.item)guard(async()=>{
     const item=dashboard.catalog.find(x=>x.entity_id===b.dataset.item);
+    if(spotifyRecordings[item.entity_id])showPlayer(spotifyRecordings[item.entity_id],item.canonical_name);
     surface={track:'listening_ai',playlist:'playlist_ai',episode:'podcast_ai'}[item.entity_type];
     utterance=item.entity_type==='track'?'Recommend music like '+item.canonical_name+' by '+artistFor(item)+'.':
       item.entity_type==='episode'?'Explore the podcast about '+artistFor(item)+'.':'Build a playlist with '+artistFor(item)+'.';
-    await run();$('#request-panel').focus();
+    await run();if(!dialog.open)$('#request-panel').focus();
   });
   if(b.dataset.jump)guard(async()=>{page='session';await render();$('#request-panel').focus();});
   if(b.dataset.surface)guard(async()=>{surface=b.dataset.surface;utterance=example[surface];last=null;await render();});
