@@ -152,7 +152,7 @@ function browseCards() {
     return '<button class="track" data-item="'+esc(item.entity_id)+'">'+recordArt(item)+'<span class="track-copy"><strong>'+esc(item.canonical_name.replace(/^Artist Profile: /,''))+'</strong><small>'+
       esc(item.entity_type==='episode'?'Indian Singer Stories · Podcast':artistFor(item))+'</small></span><span class="track-arrow">'+icon('arrow')+'</span></button>';
   }
-  const feedback=(key,title)=>'<details><summary aria-label="Feedback for '+esc(title)+'">Feedback</summary><small>'+esc(votes[key]==='more'?'Ranked higher from your feedback':votes[key]==='less'?'Ranked lower from your feedback':artistBoost(key)?'Your saved artist preference':'Original catalog order')+'</small>'+
+  const feedback=(key,title)=>dashboard.control!=='active' || dashboard.consent!=='granted'?'':'<details><summary aria-label="Feedback for '+esc(title)+'">Feedback</summary><small>'+esc(votes[key]==='more'?'Ranked higher from your feedback':votes[key]==='less'?'Ranked lower from your feedback':artistBoost(key)?'Your saved artist preference':'Original catalog order')+'</small>'+
     [['more','More like this'],['less','Less like this'],['undo','Undo']].filter(([v])=>v!=='undo'||votes[key]).map(([v,label])=>'<button class="link" data-vote="'+v+'" data-key="'+esc(key)+'">'+label+'</button>').join('')+'</details>';
   const live=liveQuery===term && !podcasts?[...liveTracks].sort((a,b)=>score('spotify:'+b.id)-score('spotify:'+a.id)):[];
   const remote=live.map(t=>'<div><a class="track" href="https://open.spotify.com/track/'+esc(t.id)+'" target="_blank" rel="noopener noreferrer"><span class="track-copy"><strong>'+esc(t.title)+'</strong><small>'+esc(t.artist)+' · '+esc(t.album)+' · Spotify</small></span></a>'+feedback('spotify:'+t.id,t.title)+'</div>').join('');
@@ -196,6 +196,7 @@ function controlsPage() {
   const recent=dashboard.jobs[0],active=dashboard.control==='active';
   view.innerHTML=heading('Memory controls','Review a listener’s timeline, correct a preference or remove it.')+
     '<div class="grid"><section class="panel"><div class="between"><h2>Memory timeline</h2><button class="secondary" data-act="add">Add preference</button></div>'+
+    (Object.keys(dashboard.trackVotes || {}).length?details('Track feedback',Object.entries(dashboard.trackVotes).map(([key,value])=>'<div>'+esc(dashboard.catalog.find(t=>t.entity_id===key)?.canonical_name || key)+' · '+esc(value)+' <button class="link" data-vote="undo" data-key="'+esc(key)+'">Undo</button></div>').join('')):'')+
     (memories.length?memories.map(m=>memoryCard(m,true)).join(''):'<p class="empty">This listener has no stored memories to review.</p>')+
     '</section><div class="stack"><section class="panel"><div class="between"><h2>Personal memory</h2>'+chip(human(dashboard.control))+'</div><p class="desc">Consent is '+esc(dashboard.consent)+'.</p><div class="actions spaced">'+
     (dashboard.consent==='revoked'?'<button class="secondary" data-act="opt_in">Grant consent</button>':
@@ -331,7 +332,7 @@ async function guard(fn) {
 }
 document.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
-  if(b.dataset.vote)guard(async()=>{await api('/v1/track-feedback',{track:b.dataset.key,choice:b.dataset.vote});await refresh();browseCards();});
+  if(b.dataset.vote)guard(async()=>{await api('/v1/track-feedback',{track:b.dataset.key,choice:b.dataset.vote});await refresh();await render();});
   if(b.dataset.page)guard(async()=>{page=b.dataset.page;await refresh();await render();window.scrollTo(0,0);});
   if(b.dataset.filter){browseFilter=b.dataset.filter;searchSpotify();view.querySelectorAll('[data-filter]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.filter===browseFilter)));browseCards();}
   if(b.dataset.shortcut)guard(async()=>{surface=b.dataset.shortcut;utterance=example[surface];await run();$('#request-panel').focus();});
