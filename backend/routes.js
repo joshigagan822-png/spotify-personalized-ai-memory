@@ -69,6 +69,11 @@ export async function handle(request,env,ctx,asset) {
     if(path==='/health/ready') {await db.prepare('SELECT id FROM workspaces LIMIT 1').first();return json({status:'ready'});}
     if(!path.startsWith('/v1/') && !path.startsWith('/demo/') && path!=='/mcp') return asset(path,method);
     const session=await sessionFor(request,db);
+    const cookie = (token, seconds) => 'lm_session='+token+'; HttpOnly; SameSite=Strict; Path=/; Max-Age='+seconds+(url.protocol==='https:'?'; Secure':'');
+    if (env.accountSession && method==='POST' && ['/v1/account/signup','/v1/account/login'].includes(path)) {
+      const token=await env.accountSession(db,path.split('/').pop(),await body(request));
+      return json({access_token:token},200,{'Set-Cookie':cookie(token,86400)});
+    }
     if(path==='/demo/session' && method==='POST') {
       const b=await body(request);
       const token=await startSession(db,b.subject_id || 'U0001',session);
@@ -78,6 +83,20 @@ export async function handle(request,env,ctx,asset) {
     ensure(session,'authentication_required',401);
     const id=session.workspace_id, subject=id.split('/').at(-1);
     await limit(db,id+'/api',240);
+    if(path==='/v1/account/logout' && method==='POST'){
+      await db.prepare('DELETE FROM sessions WHERE digest=?').bind(session.digest).run();
+      return json({ok:true},200,{'Set-Cookie':cookie('',0)});
+    }
+    if(path==='/v1/catalog/search' && method==='GET'){
+      const term=(url.searchParams.get('q') || '').trim();
+      ensure(term.length>=2 && term.length<=100,'invalid_search',422);
+      await limit(db,id+'/spotify',30);
+      const result=env.spotifySearch ? await env.spotifySearch(term) : {available:false,tracks:[]};
+      if(result.available && !result.tracks.length && ![...entities.values()].some(e=>e.canonical_name.toLowerCase().includes(term.toLowerCase()))){
+        await change(db,id,s=>{if(s.control==='active' && s.consent==='granted')s.counters.empty_searches=(s.counters.empty_searches || 0)+1;});
+      }
+      return json(result);
+    }
     if(path==='/mcp') {
       if(method==='GET' || method==='DELETE') return new Response(null,{status:405,headers:{Allow:'POST'}});
       ensure(method==='POST','method_not_allowed',405);
@@ -89,6 +108,20 @@ export async function handle(request,env,ctx,asset) {
     for(const k of ['subject_id','authenticated_subject_id','requested_subject_id']) {
       ensure((!Object.hasOwn(b,k) || b[k]===subject) && (!url.searchParams.has(k) || url.searchParams.get(k)===subject),'authorization_denied',403);
     }
+    if(path==='/v1/track-feedback' && method==='POST'){
+      ensure((entities.get(b.track)?.entity_type==='track' || /^spotify:[a-zA-Z0-9]{22}$/.test(b.track)) &&
+        ['more','less','undo'].includes(b.choice),'invalid_feedback',422);
+      return json(await change(db,id,s=>{
+        ensure(s.control==='active' && s.consent==='granted' && s.user.age_band==='adult','memory_unavailable',403);
+        s.trackVotes ||= {};
+        if(b.choice==='undo') delete s.trackVotes[b.track];
+        else {
+          ensure(Object.hasOwn(s.trackVotes,b.track) || Object.keys(s.trackVotes).length<1000,'feedback_limit',409);
+          s.trackVotes[b.track]=b.choice;
+        }
+        return {ok:true};
+      }));
+    }
     if(method==='GET') {
       if(path==='/v1/quality') return json(quality);
       if(path==='/v1/policy') return json({schema_version:'1.0.0',vector_model:vectorVersion,dimensions,
@@ -97,7 +130,8 @@ export async function handle(request,env,ctx,asset) {
       if(s.inbox.some(j=>j.status==='queued') || Object.values(s.jobs).some(j=>j.status==='pending')) {
         await change(db,id,advance);s=(await readState(db,id)).state;
       }
-      if(path==='/v1/dashboard') return json({user:s.user,profiles,at:clock(s),consent:s.consent,control:s.control,
+      if(path==='/v1/dashboard') return json({user:s.user,profiles,accounts:!!env.accountSession,personal:id.startsWith('account/'),
+        trackVotes:s.control==='active' && s.consent==='granted' ? s.trackVotes || {} : {},at:clock(s),consent:s.consent,control:s.control,
         catalog:[...entities.values()].map(({entity_id,entity_type,canonical_name})=>({entity_id,entity_type,canonical_name})),
         metrics:metrics(s),traces:readable(s.traces),jobs:Object.values(s.jobs).slice(-12).reverse()});
       if(path==='/v1/memories') return json({memories:s.memories.filter(m=>!['expired','deletion_pending'].includes(m.status)).slice().reverse()});
@@ -135,7 +169,7 @@ export async function handle(request,env,ctx,asset) {
       tool=method==='PATCH'?'correct_memory':'delete_memory';args={...b,memory_id:path.split('/').at(-1)};
     }
     if(tool) {await limit(db,id+'/'+tool,toolDefinitions[tool].limit);return json(await callTool(tool,args,db,id,env,ctx));}
-    if(path==='/v1/control' && method==='POST') return json(await change(db,id,s=>setControl(s,b.action)));
+    if(path==='/v1/control' && method==='POST') return json(await change(db,id,s=>{const result=setControl(s,b.action);if(b.action==='opt_out'){delete s.trackVotes;delete s.counters.empty_searches;}return result;}));
     if(path==='/v1/feedback' && method==='POST') return json(await change(db,id,s=>{
       recordFeedback(s,b.memory_id,b.trace_id,b.response_id,b.verdict);
       s.traces.push({trace_id:uid(),at:clock(s),action:'feedback',outcome:b.verdict,used:[],candidates:[],removals:[]});return ok('recorded');}));

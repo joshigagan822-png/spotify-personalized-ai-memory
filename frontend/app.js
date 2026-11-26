@@ -50,9 +50,38 @@ function catalogOptions(selected) {
     .map(x=>option(x.entity_id,x.canonical_name,selected===x.entity_id)).join('');
 }
 function modal(title,content){$('#dialogBody').innerHTML='<h2>'+esc(title)+'</h2>'+content;dialog.showModal();}
+let liveTracks=[],liveQuery='',searchTimer,version=0;
+function clearLive(){
+  ++version;clearTimeout(searchTimer);liveTracks=[];liveQuery='';
+}
+function searchSpotify(){
+  clearLive();
+  const q=$('#search').value.trim(),current=version;
+  if(q.length<2 || q.length>100 || browseFilter==='podcasts')return;
+  searchTimer=setTimeout(async()=>{
+    try {
+      const result=await api('/v1/catalog/search?q='+encodeURIComponent(q));
+      if(current!==version || page!=='session' || $('#search').value.trim()!==q)return;
+      liveTracks=result.tracks;liveQuery=q.toLowerCase();browseCards();
+    } catch { /* The local catalog is already visible. */ }
+  },350);
+}
+function setToken(value){demoToken=value;writeTab('lm:token',value);}
+function showAccount(action){
+  const signup=action==='signup',label=signup?'Create account':'Log in';
+  const artist=signup?field('Favourite artist (optional)','<select name="artist"><option value="">Skip</option>'+dashboard.catalog.filter(x=>x.entity_type==='artist').map(x=>option(x.entity_id,x.canonical_name,false)).join('')+'</select>'):'';
+  formModal(label,field('Email','<input type="email" name="email" autocomplete="username" required>')+
+    field('Password','<input type="password" name="password" '+(signup?'minlength="12" autocomplete="new-password" placeholder="12 characters minimum"':'autocomplete="current-password"')+' required maxlength="128">')+
+    (signup?'<label><input type="checkbox" name="eligible" required> I am 18 or older, in India, and agree to save listening preferences.</label>':'')+artist,label,async f=>{
+      const result=await api('/v1/account/'+action,{email:f.get('email'),password:f.get('password'),eligible:f.has('eligible')});
+      setToken(result.access_token);clearLive();$('#search').value='';page='session';surface='listening_ai';mode='';utterance=example[surface];last=null;
+      if(f.get('artist'))await api('/v1/memories',{entity_id:f.get('artist'),polarity:'positive',surface,idempotency_key:id()});
+      return signup?'Your account is ready.':'Logged in.';
+    });
+}
 async function refresh() {
   [dashboard,{memories}]=await Promise.all([api('/v1/dashboard'),api('/v1/memories')]);
-  $('#profile').innerHTML=dashboard.profiles.map(p=>option(p.subject_id,p.subject_id+' · '+profileNames[p.subject_id],p.subject_id===dashboard.user.subject_id)).join('');
+  $('#profile').innerHTML=dashboard.personal?option('personal','My account',true)+option('logout','Log out',false):dashboard.profiles.map(p=>option(p.subject_id,p.subject_id+' · '+profileNames[p.subject_id],p.subject_id===dashboard.user.subject_id)).join('')+(dashboard.accounts?option('signup','Create account',false)+option('login','Log in',false):'');
 }
 function memoryCard(m,controls=false) {
   const active=m.status==='active';
@@ -96,13 +125,24 @@ function artistFor(item) {
   const suffix=item.entity_id.split('_').pop();
   return dashboard.catalog.find(x=>x.entity_id==='artist_'+suffix)?.canonical_name || '';
 }
+function rankingContext(){
+  const votes=dashboard.trackVotes || {};
+  const eligible=dashboard.control==='active' && dashboard.consent==='granted';
+  const preferred=new Set(eligible?memories.filter(m=>m.status==='active' && m.memory_type==='explicit_preference' && m.surface==='listening_ai').map(m=>m.entity_id):[]);
+  const artistBoost=key=>key.startsWith('track_') && preferred.has(key.replace('track_','artist_'));
+  const score=key=>(votes[key]==='more'?2:votes[key]==='less'?-2:0)+Number(artistBoost(key));
+
+  return {score,artistBoost};
+}
 function browseCards() {
   const term=$('#search').value.trim().toLowerCase();
   const podcasts=browseFilter==='podcasts';
   const catalog=dashboard.catalog;
   const group=(type)=>catalog.filter(x=>x.entity_type===type && (!term || (x.canonical_name+' '+artistFor(x)).toLowerCase().includes(term)));
   const shelf=group(podcasts?'episode':'playlist').slice(0,term?12:6);
-  const rows=(browseFilter==='all' && term?[...group('track'),...group('episode')]:group(podcasts?'episode':'track')).slice(0,term?24:6);
+  const votes=dashboard.trackVotes || {};
+  const {score,artistBoost}=rankingContext();
+  const rows=(browseFilter==='all' && term?[...group('track'),...group('episode')]:group(podcasts?'episode':'track')).sort((a,b)=>score(b.entity_id)-score(a.entity_id)).slice(0,term?24:6);
   function card(item) {
     const singer=artistFor(item);
     return '<button class="cover-card" data-item="'+esc(item.entity_id)+'" aria-label="Explore '+esc(item.canonical_name)+'">'+recordArt(item,true)+
@@ -112,12 +152,16 @@ function browseCards() {
     return '<button class="track" data-item="'+esc(item.entity_id)+'">'+recordArt(item)+'<span class="track-copy"><strong>'+esc(item.canonical_name.replace(/^Artist Profile: /,''))+'</strong><small>'+
       esc(item.entity_type==='episode'?'Indian Singer Stories · Podcast':artistFor(item))+'</small></span><span class="track-arrow">'+icon('arrow')+'</span></button>';
   }
+  const feedback=(key,title)=>dashboard.control!=='active' || dashboard.consent!=='granted'?'':'<details><summary aria-label="Feedback for '+esc(title)+'">Feedback</summary><small>'+esc(votes[key]==='more'?'Ranked higher from your feedback':votes[key]==='less'?'Ranked lower from your feedback':artistBoost(key)?'Your saved artist preference':'Original catalog order')+'</small>'+
+    [['more','More like this'],['less','Less like this'],['undo','Undo']].filter(([v])=>v!=='undo'||votes[key]).map(([v,label])=>'<button class="link" data-vote="'+v+'" data-key="'+esc(key)+'">'+label+'</button>').join('')+'</details>';
+  const live=liveQuery===term && !podcasts?[...liveTracks].sort((a,b)=>score('spotify:'+b.id)-score('spotify:'+a.id)):[];
+  const remote=live.map(t=>'<div><a class="track" href="https://open.spotify.com/track/'+esc(t.id)+'" target="_blank" rel="noopener noreferrer"><span class="track-copy"><strong>'+esc(t.title)+'</strong><small>'+esc(t.artist)+' · '+esc(t.album)+' · Spotify</small></span></a>'+feedback('spotify:'+t.id,t.title)+'</div>').join('');
   const none='<p class="empty">No matches. Try an artist or title from the catalog.</p>';
   const shortcuts=[['listening_ai','Discover music','track_01'],['playlist_ai','Build a playlist','playlist_04'],['podcast_ai','Resume a podcast','episode_06']]
     .filter(([key])=>!term && (browseFilter==='all' || (podcasts?key==='podcast_ai':key!=='podcast_ai')));
   const quick=shortcuts.map(([key,label,id])=>'<button data-shortcut="'+key+'">'+recordArt(catalog.find(x=>x.entity_id===id))+'<strong>'+label+'</strong>'+icon('arrow')+'</button>').join('');
   $('#shelves').innerHTML=(quick?'<div class="shortcuts">'+quick+'</div>':'')+'<section class="shelf"><h2>'+(podcasts?'Artist stories':'Artist mixes')+'</h2>'+(shelf.length?'<div class="covers">'+shelf.map(card).join('')+'</div>':none)+'</section>'+
-    '<section class="shelf"><h2>'+(podcasts?'Podcast episodes':'Quick picks')+'</h2>'+(rows.length?'<div class="tracks">'+rows.map(track).join('')+'</div>':none)+'</section>';
+    '<section class="shelf"><h2>'+(podcasts?'Podcast episodes':'Quick picks')+'</h2>'+(rows.length?'<div class="tracks">'+rows.map(t=>t.entity_type==='track'?'<div>'+track(t)+feedback(t.entity_id,t.canonical_name)+'</div>':track(t)).join('')+'</div>':none)+'</section>'+(remote?'<section class="shelf"><h2>Spotify results</h2><div class="tracks">'+remote+'</div></section>':'');
 }
 function updateNow() {
   const bar=$('#now');
@@ -152,6 +196,7 @@ function controlsPage() {
   const recent=dashboard.jobs[0],active=dashboard.control==='active';
   view.innerHTML=heading('Memory controls','Review a listener’s timeline, correct a preference or remove it.')+
     '<div class="grid"><section class="panel"><div class="between"><h2>Memory timeline</h2><button class="secondary" data-act="add">Add preference</button></div>'+
+    (Object.keys(dashboard.trackVotes || {}).length?details('Track feedback',Object.entries(dashboard.trackVotes).map(([key,value])=>'<div>'+esc(dashboard.catalog.find(t=>t.entity_id===key)?.canonical_name || key)+' · '+esc(value)+' <button class="link" data-vote="undo" data-key="'+esc(key)+'">Undo</button></div>').join('')):'')+
     (memories.length?memories.map(m=>memoryCard(m,true)).join(''):'<p class="empty">This listener has no stored memories to review.</p>')+
     '</section><div class="stack"><section class="panel"><div class="between"><h2>Personal memory</h2>'+chip(human(dashboard.control))+'</div><p class="desc">Consent is '+esc(dashboard.consent)+'.</p><div class="actions spaced">'+
     (dashboard.consent==='revoked'?'<button class="secondary" data-act="opt_in">Grant consent</button>':
@@ -172,12 +217,12 @@ function qualityPage() {
     details('Show all '+q.total+' cases',table(['Case','Scenario','Policy result','Checks'],q.cases.map(r=>[r.case_id,human(r.scenario),human(r.actual_policy),r.passed?'Pass':'Review'])))+'</section>';
 }
 function opsPage(){
-  const m=dashboard.metrics;
+  const m=dashboard.metrics,rankTrack=rankingContext().score;
   view.innerHTML=heading('Operations','Measurements from this demo listener’s workspace.')+
     '<div class="strip">'+metric('Retrieval P95 · target 250 ms',m.p95==null?'—':m.p95+' ms')+metric('Without memory',m.fallbacks+' / '+m.queries)+
     metric('Events in queue',m.queued)+metric('Deletions pending',m.pending_deletions)+'</div>'+
     '<div class="pair"><section class="panel"><h2>Processing</h2>'+table(['Measure','Value'],[
-      ['Latest ingestion lag',m.last_ingestion_lag_ms==null?'No processed event yet':m.last_ingestion_lag_ms+' ms'],
+      ['Tracks rated',Object.keys(dashboard.trackVotes || {}).length],['Searches without results',m.counters.empty_searches || 0],['Unique artists in top five',new Set(dashboard.catalog.filter(x=>x.entity_type==='track').sort((a,b)=>rankTrack(b.entity_id)-rankTrack(a.entity_id)).slice(0,5).map(artistFor)).size],['Latest ingestion lag',m.last_ingestion_lag_ms==null?'No processed event yet':m.last_ingestion_lag_ms+' ms'],
       ['Cache hits / misses',(m.counters.cache_hits || 0)+' / '+(m.counters.cache_misses || 0)],['Graph writes',m.counters.graph_writes || 0],
       ['Write failures',m.counters.write_failures || 0],['P50 / P99 (ms)',(m.p50??'—')+' / '+(m.p99??'—')],['Dead letters',m.dead.length]])+
       m.dead.map(k=>'<button class="secondary" data-act="replay" data-id="'+esc(k)+'">Retry event</button>').join('')+
@@ -208,6 +253,7 @@ async function run() {
   await refresh();await render();
 }
 async function loadProfile(subject,create) {
+  clearLive();
   if(create) {
     const result=await api('/demo/session',{subject_id:subject,client:'browser'});
     demoToken=result.access_token;
@@ -286,8 +332,9 @@ async function guard(fn) {
 }
 document.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.vote)guard(async()=>{await api('/v1/track-feedback',{track:b.dataset.key,choice:b.dataset.vote});await refresh();await render();});
   if(b.dataset.page)guard(async()=>{page=b.dataset.page;await refresh();await render();window.scrollTo(0,0);});
-  if(b.dataset.filter){browseFilter=b.dataset.filter;view.querySelectorAll('[data-filter]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.filter===browseFilter)));browseCards();}
+  if(b.dataset.filter){browseFilter=b.dataset.filter;searchSpotify();view.querySelectorAll('[data-filter]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.filter===browseFilter)));browseCards();}
   if(b.dataset.shortcut)guard(async()=>{surface=b.dataset.shortcut;utterance=example[surface];await run();$('#request-panel').focus();});
   if(b.dataset.item)guard(async()=>{
     const item=dashboard.catalog.find(x=>x.entity_id===b.dataset.item);
@@ -306,7 +353,13 @@ document.addEventListener('submit',e=>{if(e.target.id==='query'){
 }});
 $('#search').addEventListener('input',()=>{
   if(!dashboard)return;
+  searchSpotify();
   if(page!=='session'){page='session';render();}else browseCards();
 });
-$('#profile').addEventListener('change',e=>guard(()=>loadProfile(e.target.value,true)));
+$('#profile').addEventListener('change',e=>guard(async()=>{
+  const action=e.target.value;e.target.value=dashboard.personal?'personal':dashboard.user.subject_id;
+  if(['signup','login'].includes(action)){showAccount(action);return;}
+  if(action==='logout'){await api('/v1/account/logout',{});setToken('');await loadProfile('U0001',true);return;}
+  await loadProfile(action,true);
+}));
 guard(async()=>{try{await loadProfile(null,false);}catch(e){if(e.message!=='authentication_required')throw e;await loadProfile('U0001',true);}});
