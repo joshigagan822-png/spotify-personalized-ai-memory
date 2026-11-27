@@ -47,30 +47,24 @@ test('desktop and narrow listening desk supports account signup, feedback and gu
     if(result.exceptionDetails)throw Error(result.exceptionDetails.exception?.description || 'Page evaluation failed');
     return result.result.value;
   }
-  async function snapshot(name){
-    if(!process.env.GITHUB_ACTIONS)return;
-    const {data}=await send('Page.captureScreenshot',{format:'jpeg',quality:60});
-    for(let p=0;p<data.length;p+=1600)console.log('CARDIMG '+name+' '+p+' '+data.slice(p,p+1600));
-  }
   const click=selector=>evaluate('document.querySelector('+JSON.stringify(selector)+').click()');
   const visible=selector=>until(()=>evaluate('!!document.querySelector('+JSON.stringify(selector)+')'));
   await send('Emulation.setDeviceMetricsOverride',{width:1100,height:740,deviceScaleFactor:1,mobile:false});
   await send('Page.navigate',{url:origin});
-  await visible('[data-auth=signup]');await snapshot('entry');
+  await visible('[data-auth=signup]');
   await click('[data-auth=signup]');
   await evaluate("const f=document.querySelector('#auth');f.email.value='qa@example.test';f.password.value='browser-test-passphrase';f.eligible.checked=true;f.requestSubmit()");
   await visible('#taste');
   await evaluate("const a=document.querySelectorAll('#taste input');a[0].value='Arijit Singh';a[1].value='Shreya Ghoshal';a[2].value='Sonu Nigam';document.querySelector('#taste').requestSubmit()");
   await until(()=>evaluate("!document.querySelector('dialog').open && document.querySelector('#view').textContent.includes('Tailored')"));
   
-  await visible('iframe.inline-player');await delay(1500);await snapshot('home');
   await evaluate("document.querySelector('[data-vote=less]').closest('details').open=true;document.querySelector('[data-vote=less]').click()");
   await visible('[data-undo]');assert.equal(await evaluate("document.querySelector('#workspace-menu').open"),false);await click('#workspace-menu summary');await click('[data-page=memories]');
   await visible('[data-taste]');await click('[data-undo]');
   await until(()=>evaluate("!document.querySelector('[data-undo]')"));
   await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
-  await click('[data-page=session]');await visible('[data-filter=episode]');await click('[data-filter=episode]');
-  await visible('[data-player^="episode:"]');await click('[data-filter=playlist]');await visible('[data-player^="playlist:"]');
+  await click('[data-page=session]');await visible('[data-filter=episode]');await click('[data-filter=episode]');await until(()=>evaluate("document.querySelector('[data-filter=episode]').getAttribute('aria-pressed')==='true'"));
+  await visible('[data-player^="episode:"]');await click('[data-filter=playlist]');await until(()=>evaluate("document.querySelector('[data-filter=playlist]').getAttribute('aria-pressed')==='true'"));await visible('[data-player^="playlist:"]');
   assert.ok(await evaluate("document.querySelector('iframe[data-player]').src.includes('/embed/playlist/')"));assert.equal(await evaluate("document.querySelector('dialog').open"),false);
   await click('#profile');await click('[data-logout]');await visible('[data-auth=guest]');await click('[data-auth=guest]');
   await visible('.musiccard');assert.equal(await evaluate("document.querySelector('#profile').textContent"),'Guest account');
