@@ -23,7 +23,7 @@ const labels={all:'All',track:'Songs',episode:'Podcasts',playlist:'Playlists'};
 async function api(path,body){const r=await fetch('/v1/'+path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});const d=await r.json();if(!r.ok)throw Object.assign(Error(d.error.replaceAll('_',' ')),{status:r.status});return d;}
 function modal(title,html){$('#dialogBody').innerHTML='<h2>'+esc(title)+'</h2>'+html;if(!dialog.open)dialog.showModal();}
 dialog.onclose=()=>{if(!dialog.open)$('#dialogBody').replaceChildren();};
-function welcome(){state=null;version++;clearTimeout(timer);document.body.classList.add('welcome');
+function welcome(){disposePlayers();state=null;version++;clearTimeout(timer);document.body.classList.add('welcome');
 view.innerHTML='<section class="entry"><div class="entry-copy"><div class="brand"><span class="sound" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>Spotify Memory</div><h1>Your listening space.</h1><p>Find songs, podcasts and playlists. Choose the artists you love and shape what you hear next.</p><div class="actions"><button class="primary" data-auth="signup">Sign up</button><button class="secondary" data-auth="login">Log in</button><button class="link" data-auth="guest">Try demo</button></div></div><div class="entry-art" aria-hidden="true"><div class="vinyl"></div><div class="sleeve"></div></div></section>';}
 function fail(e){if(e.status===401&&!dialog.open)welcome();$('#alert').textContent=e.message;}
 async function enter(){state=await api('state');document.body.classList.remove('welcome');$('#profile').textContent=state.guest?'Guest account':'My account';page='session';type='all';search.value='';await refresh();}
@@ -43,16 +43,58 @@ function forgot(email){
 function taste(skip){modal('Favourite artists','<form id="taste"><p>Choose up to three artists or enter their names.</p><datalist id="options">'+state.options.map(a=>'<option value="'+esc(a)+'">').join('')+'</datalist>'+[0,1,2].map(i=>'<label class="field">Artist '+(i+1)+'<input name="artist" list="options" maxlength="80" value="'+esc(state.artists[i])+'"></label>').join('')+'<button class="primary">Save artists</button> '+(skip?'<button type="button" class="link" data-close>Skip for now</button>':'')+'</form>');
 $('#taste').onsubmit=async e=>{e.preventDefault();try{await api('memory',{action:'artists',artists:new FormData(e.target).getAll('artist').map(a=>a.trim()).filter(Boolean)});dialog.close();await refresh();}catch(err){fail(err);}};}
 const panel=(t,body)=>'<section class="panel"><h2>'+esc(t)+'</h2>'+body+'</section>';
+const players=new Set();
+let playerAPI,activePlayer,apiLoading=false;
+function disposePlayers(){
+ activePlayer=null;
+ for(const controller of players)controller.destroy();
+ players.clear();
+}
+function mountPlayers(){
+ const slots=view.querySelectorAll('[data-player-host]');
+ if(!slots.length)return;
+ if(!playerAPI){
+  if(apiLoading)return;
+  apiLoading=true;
+  const script=document.createElement('script');
+  script.src='https://open.spotify.com/embed/iframe-api/v1';script.async=true;
+  script.onerror=()=>{apiLoading=false;script.remove();};
+  document.head.append(script);return;
+ }
+ for(const slot of slots){
+  if(slot.dataset.mounted)continue;
+  slot.dataset.mounted='1';
+  const target=document.createElement('div');slot.append(target);
+  playerAPI.createController(target,{uri:'spotify:'+slot.dataset.playerHost,width:'100%',height:152},controller=>{
+   if(!slot.isConnected){controller.destroy();return;}
+   players.add(controller);
+   const frame=slot.querySelector('iframe');
+   if(frame){frame.className='inline-player';frame.title=slot.dataset.title;}
+   let playing=false;
+   function activate(){
+    if(!slot.isConnected||activePlayer===controller)return;
+    const last=activePlayer;activePlayer=controller;
+    if(last)last.pause();
+   }
+   controller.addListener('playback_started',()=>{playing=true;activate();});
+   controller.addListener('playback_update',event=>{
+    const nowPlaying=event.data.isPaused===false && !event.data.isBuffering;
+    if(nowPlaying&&!playing)activate();
+    if(nowPlaying || event.data.isPaused===true)playing=nowPlaying;
+   });
+  });
+ }
+}
+window.onSpotifyIframeApiReady=api=>{playerAPI=api;mountPlayers();};
 function card(t){
  const url='https://open.spotify.com/'+t.type+'/'+t.id;
- const player='https://open.spotify.com/embed/'+t.type+'/'+t.id+'?theme=0';
- return '<article class="musiccard"><div class="player-slot">'+(t.image?'<img class="pending-art" src="'+esc(t.image)+'" alt="" loading="lazy">':'')+'<iframe class="inline-player" data-player="'+esc(t.key)+'" title="Play '+esc(t.title)+' on Spotify" src="'+esc(player)+'" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe></div><footer><div class="record-caption"><strong>'+esc(t.title)+'</strong><a class="spotify-link" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Open in Spotify ↗</a></div><details><summary aria-label="Options for '+esc(t.title)+'">⋯</summary><div class="menu"><button data-source="'+esc(t.key)+'">View source</button>'+(!state.paused?['more','less'].map(v=>'<button data-vote="'+v+'" data-key="'+esc(t.key)+'">'+(v==='more'?'More':'Less')+' like this</button>').join(''):'')+(state.votes[t.key]?'<button data-undo="'+esc(t.key)+'">Undo feedback</button>':'')+'</div></details></footer></article>';
+ return '<article class="musiccard"><div class="player-slot">'+(t.image?'<img class="pending-art" src="'+esc(t.image)+'" alt="" loading="lazy">':'')+'<div data-player-host="'+esc(t.key)+'" data-player="'+esc(t.key)+'" data-title="Play '+esc(t.title)+' on Spotify"></div></div><footer><div class="record-caption"><strong>'+esc(t.title)+'</strong><a class="spotify-link" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Open in Spotify ↗</a></div><details><summary aria-label="Options for '+esc(t.title)+'">⋯</summary><div class="menu"><button data-source="'+esc(t.key)+'">View source</button>'+(!state.paused?['more','less'].map(v=>'<button data-vote="'+v+'" data-key="'+esc(t.key)+'">'+(v==='more'?'More':'Less')+' like this</button>').join(''):'')+(state.votes[t.key]?'<button data-undo="'+esc(t.key)+'">Undo feedback</button>':'')+'</div></details></footer></article>';
 }
 async function refresh(remember=false){
  const rev=++version;const q=search.value.trim();const nextFeed=page==='session'?await api('feed',{type,q,remember}):null;
- const nextState=await api('state');if(rev!==version)return;state=nextState;
+ const nextState=await api('state');if(rev!==version)return;disposePlayers();state=nextState;
  document.querySelectorAll('[data-page]').forEach(b=>b.setAttribute('aria-current',b.dataset.page===page?'page':'false'));
- if(page==='session'){feed=nextFeed;view.innerHTML='<div class="home-heading"><h1>Home</h1><div class="filters">'+Object.entries(labels).map(([k,v])=>'<button data-filter="'+k+'" aria-pressed="'+(type===k)+'">'+v+'</button>').join('')+'</div></div><section class="shelf"><h2>'+esc(q?'Matches for “'+q+'”':state.artists.length||state.terms.length||Object.keys(state.votes).length?'Tailored to your memory & search taste':'Discover something new')+'</h2><p class="desc">'+(feed.search?'Spotify catalog · India':'Featured on Spotify · full search unavailable')+'</p><div class="musicgrid">'+feed.items.map(card).join('')+'</div>'+(!feed.items.length?'<p>No matching results.</p>':'')+(q&&!feed.search?'<a class="spotify-link" href="https://open.spotify.com/search/'+encodeURIComponent(q)+'" target="_blank" rel="noopener">Search Spotify ↗</a>':'')+'</section>';return;}
+ if(page==='session'){feed=nextFeed;view.innerHTML='<div class="home-heading"><h1>Home</h1><div class="filters">'+Object.entries(labels).map(([k,v])=>'<button data-filter="'+k+'" aria-pressed="'+(type===k)+'">'+v+'</button>').join('')+'</div></div><section class="shelf"><h2>'+esc(q?'Matches for “'+q+'”':state.artists.length||state.terms.length||Object.keys(state.votes).length?'Tailored to your memory & search taste':'Discover something new')+'</h2><p class="desc">'+(feed.search?'Spotify catalog · India':'Featured on Spotify · full search unavailable')+'</p><div class="musicgrid">'+feed.items.map(card).join('')+'</div>'+(!feed.items.length?'<p>No matching results.</p>':'')+(q&&!feed.search?'<a class="spotify-link" href="https://open.spotify.com/search/'+encodeURIComponent(q)+'" target="_blank" rel="noopener">Search Spotify ↗</a>':'')+'</section>';mountPlayers();return;}
  const rows=state.quality.map(r=>'<tr><td>'+esc(r.method)+'</td><td>'+r.n+'</td><td>'+(r.hit===null?'—':Math.round(r.hit*100)+'%')+'</td><td>'+(r.rank?.toFixed(2)||'—')+'</td></tr>').join('');
  const pages={memories:panel('Memory in use','<p>'+(state.paused?'Memory is paused. Resume when you want to use your saved taste again.':'Your favourite artists and recent searches shape Home. Feedback moves only the item you rated.')+'</p><button class="secondary" data-pause>'+(state.paused?'Resume memory':'Pause memory')+'</button>')+panel('Favourite artists','<p>'+esc(state.artists.join(', ')||'No favourites yet.')+'</p><button class="secondary" data-taste>Edit artists</button>')+panel('Recent searches',state.terms.map(q=>'<p>'+esc(q)+' <button class="link" data-forget="'+esc(q)+'">Forget</button></p>').join('')||'<p>No saved searches yet.</p>')+panel('Your feedback',Object.entries(state.votes).map(([k,v])=>'<p>'+esc(v.title)+' · '+esc(v.choice)+' <button class="link" data-undo="'+esc(k)+'">Undo</button></p>').join('')||'<p>No ratings yet.</p>')+panel('Clear memory','<button class="link" data-clear>Clear my listening memory</button>'),
  quality:panel('Recommendation quality','<p>Your first positive rating tests where the song appeared before you rated it. A smaller mean rank is better.</p><div class="table-wrap"><table><tr><th>Method</th><th>Ratings</th><th>Hit@5</th><th>Mean rank</th></tr>'+rows+'</table></div>'),
