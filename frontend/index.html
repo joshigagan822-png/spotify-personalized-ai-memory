@@ -12,8 +12,8 @@
     <nav aria-label="Workspace">
       <div class="nav-label">Menu</div>
       <button data-page="session" aria-current="page"><span data-icon="home"></span>Home</button>
-      <button data-page="memories"><span data-icon="library"></span>Memory controls</button>
-      <div class="nav-label">Workspace</div>
+      <div class="nav-label">Your workspace</div><button data-page="memories"><span data-icon="library"></span>Memory controls</button>
+      
       <button data-page="quality"><span data-icon="check"></span>Quality review</button>
       <button data-page="ops"><span data-icon="pulse"></span>Operations</button>
       <button data-page="policy"><span data-icon="shield"></span>Schema &amp; policy</button>
@@ -21,8 +21,8 @@
   </aside>
   <div class="workspace">
     <header class="top">
-      <label class="search"><span data-icon="search"></span><input id="search" type="search" aria-label="Search music and podcasts" placeholder="Search music and podcasts"></label>
-      <label class="identity"><span data-icon="user"></span><select id="profile" aria-label="Demo listener"><option>Loading…</option></select></label>
+      <label class="search"><span data-icon="search"></span><input id="search" type="search" aria-label="Search songs, podcasts and playlists" placeholder="Search songs, podcasts and playlists"></label>
+      <button id="profile" class="secondary">Account</button>
     </header>
     <main id="main" tabindex="-1"><div id="alert" role="status" aria-live="polite"></div><div id="view"><p>Loading your listening session…</p></div></main>
   </div>
