@@ -24,7 +24,7 @@ async function api(path,body){const r=await fetch('/v1/'+path,{method:body?'POST
 function modal(title,html){$('#dialogBody').innerHTML='<h2>'+esc(title)+'</h2>'+html;if(!dialog.open)dialog.showModal();}
 dialog.onclose=()=>{if(!dialog.open)$('#dialogBody').replaceChildren();};
 function welcome(){state=null;version++;clearTimeout(timer);document.body.classList.add('welcome');
-view.innerHTML='<section class="entry"><div class="brand">Spotify Memory</div><h1>Your listening space.</h1><p>Find songs, podcasts and playlists. Choose the artists you love and shape what you hear next.</p><div class="actions"><button class="primary" data-auth="signup">Sign up</button><button class="secondary" data-auth="login">Log in</button><button class="link" data-auth="guest">Try demo</button></div></section>';}
+view.innerHTML='<section class="entry"><div class="entry-copy"><div class="brand"><span class="sound" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>Spotify Memory</div><h1>Your listening space.</h1><p>Find songs, podcasts and playlists. Choose the artists you love and shape what you hear next.</p><div class="actions"><button class="primary" data-auth="signup">Sign up</button><button class="secondary" data-auth="login">Log in</button><button class="link" data-auth="guest">Try demo</button></div></div><div class="entry-art" aria-hidden="true"><div class="vinyl"></div><div class="sleeve"></div></div></section>';}
 function fail(e){if(e.status===401&&!dialog.open)welcome();$('#alert').textContent=e.message;}
 async function enter(){state=await api('state');document.body.classList.remove('welcome');$('#profile').textContent=state.guest?'Guest account':'My account';page='session';type='all';search.value='';await refresh();}
 function auth(mode){const signup=mode==='signup';
@@ -33,7 +33,11 @@ $('#auth').onsubmit=async e=>{e.preventDefault();const f=e.target,btn=f.querySel
 function taste(skip){modal('Favourite artists','<form id="taste"><p>Choose up to three artists or enter their names.</p><datalist id="options">'+state.options.map(a=>'<option value="'+esc(a)+'">').join('')+'</datalist>'+[0,1,2].map(i=>'<label class="field">Artist '+(i+1)+'<input name="artist" list="options" maxlength="80" value="'+esc(state.artists[i])+'"></label>').join('')+'<button class="primary">Save artists</button> '+(skip?'<button type="button" class="link" data-close>Skip for now</button>':'')+'</form>');
 $('#taste').onsubmit=async e=>{e.preventDefault();try{await api('memory',{action:'artists',artists:new FormData(e.target).getAll('artist').map(a=>a.trim()).filter(Boolean)});dialog.close();await refresh();}catch(err){fail(err);}};}
 const panel=(t,body)=>'<section class="panel"><h2>'+esc(t)+'</h2>'+body+'</section>';
-function card(t){return '<article class="musiccard"><button class="listen" data-play="'+esc(t.key)+'">'+(t.image?'<img src="'+esc(t.image)+'" alt="" loading="lazy">':'')+'<span><strong>'+esc(t.title)+'</strong><small>'+esc(t.artist)+' · '+labels[t.type]+'</small></span></button><details><summary aria-label="Options for '+esc(t.title)+'">⋯</summary><div class="menu"><button data-source="'+esc(t.key)+'">View source</button>'+(!state.paused?['more','less'].map(v=>'<button data-vote="'+v+'" data-key="'+esc(t.key)+'">'+(v==='more'?'More':'Less')+' like this</button>').join(''):'')+(state.votes[t.key]?'<button data-undo="'+esc(t.key)+'">Undo feedback</button>':'')+'</div></details></article>';}
+function card(t){
+ const url='https://open.spotify.com/'+t.type+'/'+t.id;
+ const player='https://open.spotify.com/embed/'+t.type+'/'+t.id+'?theme=0';
+ return '<article class="musiccard"><iframe class="inline-player" data-player="'+esc(t.key)+'" title="Play '+esc(t.title)+' on Spotify" src="'+esc(player)+'" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe><footer><a class="spotify-link" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Open in Spotify ↗</a><details><summary aria-label="Options for '+esc(t.title)+'">⋯</summary><div class="menu"><button data-source="'+esc(t.key)+'">View source</button>'+(!state.paused?['more','less'].map(v=>'<button data-vote="'+v+'" data-key="'+esc(t.key)+'">'+(v==='more'?'More':'Less')+' like this</button>').join(''):'')+(state.votes[t.key]?'<button data-undo="'+esc(t.key)+'">Undo feedback</button>':'')+'</div></details></footer></article>';
+}
 async function refresh(remember=false){
  const rev=++version;const q=search.value.trim();const nextFeed=page==='session'?await api('feed',{type,q,remember}):null;
  const nextState=await api('state');if(rev!==version)return;state=nextState;
@@ -52,9 +56,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
  if('close'in d){dialog.close();return;}if(b.id==='profile'){modal(state.guest?'Guest account':'My account','<button class="secondary" data-logout>Log out</button>');return;}
  if('logout'in d){await api('logout',{});dialog.close();welcome();return;}
  if(d.page){page=d.page;clearTimeout(timer);await refresh();return;}if(d.filter){type=d.filter;await refresh();return;}
- if(d.play||d.source){const t=feed.items.find(x=>x.key===(d.play||d.source));if(!t)return;
- if(d.source)modal('Why this appeared','<p>'+esc(t.title)+'</p><p>'+esc(t.reason)+'</p>');
- else {const url='https://open.spotify.com/'+t.type+'/'+t.id;modal(t.title,'<iframe title="'+esc(t.title)+'" src="'+url.replace('.com/','.com/embed/')+'" width="100%" height="152" style="border:0" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"></iframe><a class="spotify-link" target="_blank" rel="noopener" href="'+url+'">Open in Spotify ↗</a>');}return;}
+ if(d.source){const t=feed.items.find(x=>x.key===d.source);if(t)modal('Why this appeared','<p>'+esc(t.title)+'</p><p>'+esc(t.reason)+'</p>');return;}
  if('taste'in d){taste(false);return;}
  if('clear'in d){modal('Clear listening memory?','<p>This removes your artists, searches, ratings and quality observations.</p><button class="secondary" data-confirm>Clear memory</button>');return;}
  if(d.vote)await api('rate',{batch:feed.batch,key:d.key,choice:d.vote});

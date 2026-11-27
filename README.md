@@ -8,11 +8,13 @@
 
 Choose **Sign up**, **Log in** or **Try demo**. Each guest gets a fresh workspace. New personal accounts start empty. After signup, enter up to three favourite artists or skip setup. Log in on another device to restore account preferences on the same database.
 
-Home loads automatically. Search for a title or artist, or filter by songs, podcast episodes and playlists. The item’s **⋯** menu contains **View source**, **More like this**, **Less like this** and **Undo feedback**. Select a title for its official Spotify player. The green **Open in Spotify** link opens the same item in Spotify. Playback and preview availability depend on Spotify.
+Home loads automatically. Search for a title or artist, or filter by songs, podcast episodes and playlists. The item’s **⋯** menu contains **View source**, **More like this**, **Less like this** and **Undo feedback**. Press Play directly on a card’s official Spotify player. Each player includes the item's Spotify artwork. The green **Open in Spotify** link opens the same item in Spotify. Playback and preview availability depend on Spotify.
 
 ![Home after choosing favourite artists](docs/home.jpg)
 
 ## Your workspace
+
+Expand **Your workspace** in the sidebar to reveal these four pages.
 
 | Page | Live data and controls |
 |---|---|
