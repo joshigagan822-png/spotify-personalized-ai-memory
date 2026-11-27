@@ -56,16 +56,33 @@ export async function handle(req,env,ctx,asset){
  default:ensure(false,'unknown_action');}
  delete s.batch;save();return json({ok:true});}
  if(post&&p==='/v1/feed'){
- const q=String(b.q||'').trim().slice(0,100),types=kinds.includes(b.type)?[b.type]:kinds;
+ const q=String(b.q||'').trim().slice(0,512),types=kinds.includes(b.type)?[b.type]:kinds;
+ const offset=Number(b.offset||0);
+ ensure(Number.isInteger(offset)&&offset>=0&&offset<=1000&&offset%10===0,'invalid_page');
+ const link=q.match(/^(?:https:\/\/open\.spotify\.com\/(?:intl-[a-z-]+\/)?|spotify:)(track|episode|playlist)[/:]([a-zA-Z0-9]{22})(?:[?#].*)?$/);
  const request=q||(!s.paused&&(s.artists[s.feeds%Math.max(s.artists.length,1)]||s.terms[0]))||'Indian';
- refreshCatalog();const remote=await Promise.all(types.map(t=>env.spotifySearch(request,t)));s=read(db,id);
- const local=featured.filter(t=>types.includes(t.type)&&(!q||(t.title+' '+t.artist).toLowerCase().includes(q.toLowerCase())));
- const items=[...new Map([...local,...remote.flatMap(r=>r.tracks)].map(t=>[key(t),t])).values()];
+ refreshCatalog();
+ let direct=null;
+ if(link&&types.includes(link[1])){
+  const [,type,id]=link;
+  const existing=featured.find(x=>x.id===id&&x.type===type);
+  if(existing)direct=existing;
+  else {
+   try {
+    const endpoint='https://open.spotify.com/oembed?url='+encodeURIComponent('https://open.spotify.com/'+type+'/'+id);
+    const response=await fetch(endpoint,{signal:AbortSignal.timeout(5000)});
+    if(response.ok){const meta=await response.json();direct={type,id,title:meta.title,artist:'Spotify',image:meta.thumbnail_url};}
+   }catch{}
+  }
+ }
+ const remote=link?[]:await Promise.all(types.map(t=>env.spotifySearch(request,t,offset)));s=read(db,id);
+ const local=offset?[]:featured.filter(t=>types.includes(t.type)&&(!q||(t.title+' '+t.artist).toLowerCase().includes(q.toLowerCase())));
+ const items=[...new Map([...local,...remote.flatMap(r=>r.tracks),...(direct?[direct]:[])].map(t=>[key(t),t])).values()];
  const counts=JSON.parse(db.prepare("SELECT json_group_object(k,n) c FROM (SELECT v.key k,count(*) n FROM workspaces w,json_each(w.document,'$.votes') v WHERE json_extract(v.value,'$.choice')='more' GROUP BY v.key)").first().c);
  const ranked=ranking(items,s.paused?blank():s,counts,q?0:Math.floor(Date.now()/3600000));
- if(!s.paused){s.feeds++;if(q&&b.remember)s.terms=[q,...s.terms.filter(x=>x!==q)].slice(0,12);
+ if(!s.paused){s.feeds++;if(q&&!link&&b.remember)s.terms=[q,...s.terms.filter(x=>x!==q)].slice(0,12);
  s.batch={id:crypto.randomUUID(),orders:ranked.orders,titles:Object.fromEntries(items.map(t=>[key(t),t.title]))};save();}
- return json({items:ranked.cards,batch:s.paused?null:s.batch.id,search:remote.some(r=>r.available)});}
+ return json({items:ranked.cards,batch:s.paused?null:s.batch.id,direct:!!direct,hasNext:!!q&&offset<1000&&remote.some(r=>r.hasNext),search:remote.some(r=>r.available)});}
  if(post&&p==='/v1/rate'){
  ensure(!s.paused&&s.batch?.id===b.batch&&Object.hasOwn(s.batch.titles,b.key),'refresh_results',409);ensure(['more','less'].includes(b.choice),'invalid_choice');
  if(!s.votes[b.key]&&b.choice==='more'&&b.key.startsWith('track:'))s.samples=[...s.samples,{key:b.key,ranks:s.batch.orders.map(a=>1+a.indexOf(b.key))}].slice(-500);
