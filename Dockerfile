@@ -3,7 +3,7 @@ WORKDIR /build
 COPY scripts/index-catalog.py .
 RUN python index-catalog.py catalog-index.sqlite
 
-FROM node:24-slim
+FROM node:26-slim
 RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 WORKDIR /app
 COPY --chown=node:node . .
