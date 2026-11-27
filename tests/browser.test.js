@@ -59,13 +59,13 @@ test('desktop and narrow listening desk supports account signup, feedback and gu
   await until(()=>evaluate("!document.querySelector('dialog').open && document.querySelector('#view').textContent.includes('Tailored')"));
   
   await evaluate("document.querySelector('[data-vote=less]').closest('details').open=true;document.querySelector('[data-vote=less]').click()");
-  await visible('[data-undo]');await click('[data-page=memories]');
+  await visible('[data-undo]');assert.equal(await evaluate("document.querySelector('#workspace-menu').open"),false);await click('#workspace-menu summary');await click('[data-page=memories]');
   await visible('[data-taste]');await click('[data-undo]');
   await until(()=>evaluate("!document.querySelector('[data-undo]')"));
   await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
-  await click('[data-page=session]');await visible('[data-filter=episode]');await click('[data-filter=episode]');
-  await visible('[data-play^="episode:"]');await click('[data-filter=playlist]');await visible('[data-play^="playlist:"]');
-  await click('[data-play^="playlist:"]');await visible('dialog iframe');await evaluate("document.querySelector('dialog').close()");
+  await click('[data-page=session]');await visible('[data-filter=episode]');await click('[data-filter=episode]');await until(()=>evaluate("document.querySelector('[data-filter=episode]').getAttribute('aria-pressed')==='true'"));
+  await visible('[data-player^="episode:"]');await click('[data-filter=playlist]');await until(()=>evaluate("document.querySelector('[data-filter=playlist]').getAttribute('aria-pressed')==='true'"));await visible('[data-player^="playlist:"]');
+  assert.ok(await evaluate("document.querySelector('iframe[data-player]').src.includes('/embed/playlist/')"));assert.equal(await evaluate("document.querySelector('dialog').open"),false);
   await click('#profile');await click('[data-logout]');await visible('[data-auth=guest]');await click('[data-auth=guest]');
   await visible('.musiccard');assert.equal(await evaluate("document.querySelector('#profile').textContent"),'Guest account');
 });
