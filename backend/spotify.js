@@ -17,18 +17,18 @@ export function createSpotifySearch(clientId, secret, fetcher = fetch) {
     token = result.access_token;
     expires = Date.now() + (result.expires_in - 30) * 1000;
   }
-  return async function search(term,type='track') {
+  return async function search(term,type='track',offset=0) {
     if (!clientId || !secret || Date.now() < retryAt) return {available:false,tracks:[]};
     try {
       if (Date.now() >= expires || !token) {
         pending ||= authorize().finally(()=>{pending=null;});
         await pending;
       }
-      const params = new URLSearchParams({q:term,type,market:'IN',limit:'10'});
+      const params = new URLSearchParams({q:term,type,market:'IN',limit:'10',offset:String(offset)});
       const data = await request('https://api.spotify.com/v1/search?'+params,{headers:{Authorization:'Bearer '+token}});
       const tracks = data[type+'s'].items.filter(t=>t && /^[A-Za-z0-9]{22}$/.test(t.id)).map(t=>({
         id:t.id,type,title:t.name,artist:t.artists?.map(a=>a.name).join(', ') || t.owner?.display_name || t.show?.name || '',image:t.album?.images?.[0]?.url || t.images?.[0]?.url || ''}));
-      return {available:true,tracks};
+      return {available:true,tracks,hasNext:!!data[type+'s'].next};
     } catch {return {available:false,tracks:[]};}
   };
 }
