@@ -16,7 +16,7 @@ function icon(name) {
 }
 document.querySelectorAll('[data-icon]').forEach(el=>el.innerHTML=icon(el.dataset.icon));
 
-let browseFilter='all';
+
 
 let state,feed,page='session',type='all',version=0,timer;
 const labels={all:'All',track:'Songs',episode:'Podcasts',playlist:'Playlists'};

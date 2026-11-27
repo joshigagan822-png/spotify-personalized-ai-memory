@@ -2,11 +2,15 @@
 
 [Open the listening workspace](https://spotify-personalized-ai-memory.onrender.com)
 
+![First visit with login, signup and guest access](docs/entry.jpg)
+
 ## Listening workflow
 
 Choose **Sign up**, **Log in** or **Try demo**. Each guest gets a fresh workspace. New personal accounts start empty. After signup, enter up to three favourite artists or skip setup. Log in on another device to restore account preferences on the same database.
 
 Home loads automatically. Search for a title or artist, or filter by songs, podcast episodes and playlists. The item’s **⋯** menu contains **View source**, **More like this**, **Less like this** and **Undo feedback**. Select a title for its official Spotify player. The green **Open in Spotify** link opens the same item in Spotify. Playback and preview availability depend on Spotify.
+
+![Home after choosing favourite artists](docs/home.jpg)
 
 ## Your workspace
 
@@ -16,6 +20,8 @@ Home loads automatically. Search for a title or artist, or filter by songs, podc
 | Quality review | Compare three orderings using this listener’s first positive song ratings and the ranks observed before each vote. |
 | Operations | Remembered feed requests, recent search count and current rating count. |
 | Schema & policy | Workspace type, current memory status and how stored signals are used. |
+
+![Memory controls for the same test listener](docs/memory.jpg)
 
 ## Request flow
 

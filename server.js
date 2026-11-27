@@ -10,7 +10,7 @@ const root=path.dirname(fileURLToPath(import.meta.url));
 try {process.loadEnvFile(path.join(root,'.env'));} catch(e) {if(e.code!=='ENOENT') throw e;}
 const db=openLocal(process.env.DATABASE_PATH || path.join(root,'runtime','memory.sqlite'));
 db.prepare('CREATE TABLE IF NOT EXISTS accounts(email TEXT PRIMARY KEY, subject TEXT UNIQUE NOT NULL, salt TEXT NOT NULL, hash TEXT NOT NULL)').run();
-const env={DB:db,accountSession,spotifySearch:createSpotifySearch(process.env.SPOTIFY_CLIENT_ID,process.env.SPOTIFY_CLIENT_SECRET),OLLAMA_URL:process.env.OLLAMA_URL,OLLAMA_MODEL:process.env.OLLAMA_MODEL};
+const env={DB:db,accountSession,spotifySearch:createSpotifySearch(process.env.SPOTIFY_CLIENT_ID,process.env.SPOTIFY_CLIENT_SECRET)};
 const files={'/':['frontend/index.html','text/html'], '/app.js':['frontend/app.js','text/javascript'], '/style.css':['frontend/style.css','text/css']};
 const asset=(url,method)=>{
   const f=Object.hasOwn(files,url) && files[url];
@@ -33,4 +33,4 @@ const server=http.createServer(async(req,res)=>{
 const argPort=process.argv.indexOf('--port');
 const port=Number(argPort>=0 ? process.argv[argPort+1]:process.env.PORT || 8000);
 const host=process.argv.includes('--host') ? (process.argv[process.argv.indexOf('--host')+1] || '127.0.0.1'):process.env.HOST || '127.0.0.1';
-server.listen(port,host,()=>console.log('Listening Memory at http://'+host+':'+server.address().port));
+server.listen(port,host,()=>console.log('Spotify Memory at http://'+host+':'+server.address().port));
