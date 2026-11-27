@@ -71,3 +71,7 @@ No production listener sample was exported for this release. Run `npm run evalua
 Use Node 24 and `npm start`. Open http://127.0.0.1:8000. Configure `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` on the server to enable broader catalog search. Store `DATABASE_PATH` on a persistent volume for durable accounts. Docker Compose mounts /app/runtime. Render’s free local filesystem is temporary. App accounts are separate from Spotify logins.
 
 Run `npm test` for ranking and browser checks, `npm run evaluate` for aggregate metrics, and `npm run build` for the deployable server directory. GitHub Actions checks the build, tests, Docker image and vulnerability scan.
+
+### Password recovery
+
+Signup and reset accept 4–128 characters. Save the one-time recovery code shown after signup (existing accounts receive one on their next login). Choose **Forgot password?** on the login screen and enter the account email, saved code and a new password. A successful reset signs out existing sessions and replaces the used code. The server stores only the code digest.

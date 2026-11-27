@@ -53,8 +53,8 @@ test('desktop and narrow listening desk supports account signup, feedback and gu
   await send('Page.navigate',{url:origin});
   await visible('[data-auth=signup]');
   await click('[data-auth=signup]');
-  await evaluate("const f=document.querySelector('#auth');f.email.value='qa@example.test';f.password.value='browser-test-passphrase';f.eligible.checked=true;f.requestSubmit()");
-  await visible('#taste');
+  await evaluate("const f=document.querySelector('#auth');f.email.value='qa@example.test';f.password.value='pass';f.requestSubmit()");
+  await visible('#saved-code');await click('#saved-code');await visible('#taste');
   await evaluate("const a=document.querySelectorAll('#taste input');a[0].value='Arijit Singh';a[1].value='Shreya Ghoshal';a[2].value='Sonu Nigam';document.querySelector('#taste').requestSubmit()");
   await until(()=>evaluate("!document.querySelector('dialog').open && document.querySelector('#view').textContent.includes('Tailored')"));
   
