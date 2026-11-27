@@ -25,3 +25,19 @@ test('a second browser recovers favourite artists while a guest and another acco
  const after=await feed(second);assert.ok(after.items.findIndex(t=>t.key===chosen.key)>4);
  await call('memory',second,{action:'undo',key:chosen.key});assert.equal((await feed(second)).items[0].key,chosen.key);
 });
+test('one-time recovery changes a four-character password and revokes prior sessions',async t=>{
+ const db=openLocal(':memory:');t.after(()=>db.close());
+ db.prepare('CREATE TABLE accounts(email TEXT PRIMARY KEY,subject TEXT UNIQUE,salt TEXT,hash TEXT)').run();
+ const env={DB:db,accountSession};
+ const post=(p,body)=>handle(new Request('https://example.test/v1/'+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}),env);
+ const email='reset@example.test';
+ assert.equal((await post('signup',{email,password:'abc'})).status,422);
+ const first=await post('signup',{email,password:'abcd'}),cookie=first.headers.get('set-cookie').split(';')[0];
+ const code=(await first.json()).recoveryCode;assert.ok(code);
+ assert.equal((await post('reset-password',{email,password:'wxyz',code:'invalid'})).status,400);
+ const reset=await post('reset-password',{email,password:'wxyz',code});assert.notEqual((await reset.json()).recoveryCode,code);
+ assert.equal((await post('reset-password',{email,password:'wxyz',code})).status,400);
+ assert.equal((await handle(new Request('https://example.test/v1/state',{headers:{Cookie:cookie}}),env)).status,401);
+ assert.equal((await post('login',{email,password:'abcd'})).status,401);
+ assert.equal((await post('login',{email,password:'wxyz'})).status,200);
+});

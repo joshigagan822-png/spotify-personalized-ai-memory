@@ -1,3 +1,4 @@
+import {issueRecovery,resetPassword} from './accounts.js';
 import picks from './featured.json' with {type:'json'};
 import {blank,ensure,issueSession,sessionFor,limit} from './store.js';
 import {ranking,key,metrics} from './rank.js';
@@ -34,10 +35,12 @@ export async function handle(req,env,ctx,asset){
  ensure(!req.headers.get('origin')||req.headers.get('origin')===url.origin,'origin_not_allowed',403);
  if(post)ensure(req.headers.get('content-type')?.includes('application/json'),'expected_json',415);
  const b=post?await req.json():{},cookie=(token,n)=>'lm_session='+token+'; Path=/; HttpOnly; SameSite=Strict; Max-Age='+n+(url.protocol==='https:'?'; Secure':'');
+ if(post&&p==='/v1/reset-password')return json({recoveryCode:await resetPassword(db,b)});
  if(post&&['/v1/signup','/v1/login','/v1/guest'].includes(p)){
  let token;if(p==='/v1/guest'){await limit(db,'guest-entry',120);const u=crypto.randomUUID();token=await issueSession(db,'guest/'+u,u,u,blank());}
  else token=await env.accountSession(db,p.slice(4),b);
- return json({ok:true},200,{'Set-Cookie':cookie(token,86400)});}
+ const recoveryCode=p==='/v1/guest'?null:issueRecovery(db,db.prepare('SELECT subject FROM accounts WHERE email=?').bind(String(b.email).trim().toLowerCase()).first().subject);
+ return json({ok:true,recoveryCode},200,{'Set-Cookie':cookie(token,86400)});}
  const session=await sessionFor(req,db);ensure(session&&/^(guest|account)\//.test(session.workspace_id),'sign_in_required',401);
  const id=session.workspace_id;await limit(db,id,240);
  let s=read(db,id);const save=()=>db.prepare('UPDATE workspaces SET document=?,revision=revision+1 WHERE id=?').bind(JSON.stringify(s),id).run();

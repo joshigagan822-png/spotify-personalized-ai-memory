@@ -28,8 +28,18 @@ view.innerHTML='<section class="entry"><div class="entry-copy"><div class="brand
 function fail(e){if(e.status===401&&!dialog.open)welcome();$('#alert').textContent=e.message;}
 async function enter(){state=await api('state');document.body.classList.remove('welcome');$('#profile').textContent=state.guest?'Guest account':'My account';page='session';type='all';search.value='';await refresh();}
 function auth(mode){const signup=mode==='signup';
-modal(signup?'Create your account':'Log in','<form id="auth"><label class="field">Email<input name="email" type="email" autocomplete="username" required></label><label class="field">Password<input type="password" name="password" maxlength="128" '+(signup?'minlength="12" placeholder="At least 12 characters" autocomplete="new-password"':'autocomplete="current-password"')+' required></label>'+(signup?'<label><input type="checkbox" required name="eligible"> I am 18 or older, live in India and agree to save my preferences.</label>':'')+'<p role="status"></p><button class="primary">'+(signup?'Sign up':'Log in')+'</button></form>');
-$('#auth').onsubmit=async e=>{e.preventDefault();const f=e.target,btn=f.querySelector('button');btn.disabled=true;try{await api(mode,{email:f.email.value,password:f.password.value,eligible:f.eligible?.checked});dialog.close();await enter();if(signup)taste(true);}catch(err){f.querySelector('p').textContent=err.message;}finally{btn.disabled=false;}};}
+modal(signup?'Create your account':'Log in','<form id="auth"><label class="field">Email<input name="email" type="email" autocomplete="username" required></label><label class="field">Password<input type="password" name="password" maxlength="128" '+(signup?'minlength="4" placeholder="At least 4 characters" autocomplete="new-password"':'autocomplete="current-password"')+' required></label>'+(signup?'':'<button type="button" data-forgot class="link">Forgot password?</button>')+'<p role="status"></p><button class="primary">'+(signup?'Sign up':'Log in')+'</button></form>');
+$('#auth').onsubmit=async e=>{e.preventDefault();const f=e.target,btn=f.querySelector('button.primary');btn.disabled=true;try{const result=await api(mode,{email:f.email.value,password:f.password.value});dialog.close();await enter();if(result.recoveryCode)showKey(result.recoveryCode,signup?'taste':'home');else if(signup)taste(true);}catch(err){f.querySelector('p').textContent=err.message;}finally{btn.disabled=false;}};}
+function showKey(code,next){
+ modal('Save your recovery code','<p>Keep this code in your password manager. You’ll need it to reset your password.</p><label class="field">Recovery code<input readonly value="'+esc(code)+'"></label><button class="primary" id="saved-code">I saved my code</button>');
+ $('#saved-code').onclick=()=>{dialog.close();if(next==='taste')taste(true);if(next==='login')auth('login');};
+}
+function forgot(email){
+ modal('Reset your password','<form id="reset"><label class="field">Email<input name="email" type="email" autocomplete="username" value="'+esc(email)+'" required></label><label class="field">Saved recovery code<input name="code" autocapitalize="none" spellcheck="false" required></label><label class="field">New password<input name="password" type="password" autocomplete="new-password" minlength="4" maxlength="128" placeholder="At least 4 characters" required></label><p role="status"></p><button class="primary">Reset password</button> <button type="button" class="link" data-auth="login">Back to login</button></form>');
+ $('#reset').onsubmit=async e=>{e.preventDefault();const f=e.target,btn=f.querySelector('.primary');btn.disabled=true;
+ try{const result=await api('reset-password',Object.fromEntries(new FormData(f)));showKey(result.recoveryCode,'login');}
+ catch(err){f.querySelector('p').textContent=err.message;}finally{btn.disabled=false;}};
+}
 function taste(skip){modal('Favourite artists','<form id="taste"><p>Choose up to three artists or enter their names.</p><datalist id="options">'+state.options.map(a=>'<option value="'+esc(a)+'">').join('')+'</datalist>'+[0,1,2].map(i=>'<label class="field">Artist '+(i+1)+'<input name="artist" list="options" maxlength="80" value="'+esc(state.artists[i])+'"></label>').join('')+'<button class="primary">Save artists</button> '+(skip?'<button type="button" class="link" data-close>Skip for now</button>':'')+'</form>');
 $('#taste').onsubmit=async e=>{e.preventDefault();try{await api('memory',{action:'artists',artists:new FormData(e.target).getAll('artist').map(a=>a.trim()).filter(Boolean)});dialog.close();await refresh();}catch(err){fail(err);}};}
 const panel=(t,body)=>'<section class="panel"><h2>'+esc(t)+'</h2>'+body+'</section>';
@@ -52,6 +62,7 @@ async function refresh(remember=false){
 }
 document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;try{
  $('#alert').textContent='';
+ if('forgot'in d){forgot($('#auth').email.value);return;}
  if(d.auth==='guest'){await api('guest',{});await enter();return;}if(d.auth){auth(d.auth);return;}
  if('close'in d){dialog.close();return;}if(b.id==='profile'){modal(state.guest?'Guest account':'My account','<button class="secondary" data-logout>Log out</button>');return;}
  if('logout'in d){await api('logout',{});dialog.close();welcome();return;}
