@@ -50,7 +50,7 @@ test('desktop and narrow listening desk supports account signup, feedback and gu
   const click=selector=>evaluate('document.querySelector('+JSON.stringify(selector)+').click()');
   const visible=selector=>until(()=>evaluate('!!document.querySelector('+JSON.stringify(selector)+')'));
   async function screenshot(name){
-    if(process.env.GITHUB_REF_NAME!=='live-listener-workspace')return;
+    if(!process.env.GITHUB_ACTIONS)return;
     const image=await send('Page.captureScreenshot',{format:'jpeg',quality:50});
     for(let offset=0;offset<image.data.length;offset+=1600)console.log('SMIMG '+name+' '+offset+' '+image.data.slice(offset,offset+1600));
   }
