@@ -88,7 +88,7 @@ function mountPlayers(){
 window.onSpotifyIframeApiReady=api=>{playerAPI=api;mountPlayers();};
 function card(t){
  const url='https://open.spotify.com/'+t.type+'/'+t.id;
- return '<article class="musiccard"><div class="player-slot">'+(t.image?'<img class="pending-art" src="'+esc(t.image)+'" alt="" loading="lazy">':'')+'<div data-player-host="'+esc(t.key)+'" data-player="'+esc(t.key)+'" data-title="Play '+esc(t.title)+' on Spotify"></div></div><footer><div class="record-caption"><strong>'+esc(t.title)+'</strong><a class="spotify-link" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Open in Spotify ↗</a></div><details><summary aria-label="Options for '+esc(t.title)+'">⋯</summary><div class="menu"><button data-source="'+esc(t.key)+'">View source</button>'+(!state.paused?['more','less'].map(v=>'<button data-vote="'+v+'" data-key="'+esc(t.key)+'">'+(v==='more'?'More':'Less')+' like this</button>').join(''):'')+(state.votes[t.key]?'<button data-undo="'+esc(t.key)+'">Undo feedback</button>':'')+'</div></details></footer></article>';
+ return '<article class="musiccard"><div class="player-slot">'+(t.image?'<img class="pending-art" src="'+esc(t.image)+'" alt="" loading="lazy">':'')+'<div data-player-host="'+esc(t.key)+'" data-player="'+esc(t.key)+'" data-title="Play '+esc(t.title)+' on Spotify"></div></div><footer><div class="record-caption"><strong>'+esc(t.title)+'</strong><a class="spotify-link" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Open in Spotify ↗</a></div><details><summary aria-label="Options for '+esc(t.title)+'">⋯</summary><div class="menu"><button data-source="'+esc(t.key)+'">View source</button>'+(t.type==='track'?'<button data-versions="'+esc(t.title)+'">Find other recordings</button>':'')+(!state.paused?['more','less'].map(v=>'<button data-vote="'+v+'" data-key="'+esc(t.key)+'">'+(v==='more'?'More':'Less')+' like this</button>').join(''):'')+(state.votes[t.key]?'<button data-undo="'+esc(t.key)+'">Undo feedback</button>':'')+'</div></details></footer></article>';
 }
 let searchOffset=0;
 async function refresh(remember=false){
@@ -110,6 +110,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
  if('close'in d){dialog.close();return;}if(b.id==='profile'){modal(state.guest?'Guest account':'My account','<button class="secondary" data-logout>Log out</button>');return;}
  if('logout'in d){await api('logout',{});dialog.close();welcome();return;}
  if(d.page){page=d.page;clearTimeout(timer);await refresh();return;}if('next'in d||'prev'in d){searchOffset=Math.max(0,searchOffset+('next'in d?10:-10));await refresh();return;}if(d.filter){searchOffset=0;type=d.filter;await refresh();return;}
+ if(d.versions){search.value=d.versions.split(/\s+(?:[-–—]|\(From\b)/i)[0].trim();page='session';type='track';searchOffset=0;await refresh();return;}
  if(d.source){const t=feed.items.find(x=>x.key===d.source);if(t)modal('Why this appeared','<p>'+esc(t.title)+'</p><p>'+esc(t.reason)+'</p>');return;}
  if('taste'in d){taste(false);return;}
  if('clear'in d){modal('Clear listening memory?','<p>This removes your artists, searches, ratings and quality observations.</p><button class="secondary" data-confirm>Clear memory</button>');return;}
