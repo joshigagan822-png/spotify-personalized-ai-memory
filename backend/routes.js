@@ -1,4 +1,5 @@
 import {issueRecovery,resetPassword} from './accounts.js';
+import {searchIndexedTracks} from './catalog-index.js';
 import picks from './featured.json' with {type:'json'};
 import {blank,ensure,issueSession,sessionFor,limit} from './store.js';
 import {ranking,key,metrics} from './rank.js';
@@ -76,13 +77,16 @@ export async function handle(req,env,ctx,asset){
   }
  }
  const remote=link?[]:await Promise.all(types.map(t=>env.spotifySearch(request,t,offset)));s=read(db,id);
- const local=offset?[]:featured.filter(t=>types.includes(t.type)&&(!q||(t.title+' '+t.artist).toLowerCase().includes(q.toLowerCase())));
+ const trackIndex=types.indexOf('track');
+ const indexed=q&&!link&&trackIndex>=0&&!remote[trackIndex]?.available?searchIndexedTracks(q,offset):null;
+ if(indexed)remote[trackIndex]={...indexed,available:false};
+ const local=offset?[]:featured.filter(t=>types.includes(t.type)&&(!q||(t.title+' '+t.artist+' '+(t.aliases||'')).toLowerCase().includes(q.toLowerCase())));
  const items=[...new Map([...local,...remote.flatMap(r=>r.tracks),...(direct?[direct]:[])].map(t=>[key(t),t])).values()];
  const counts=JSON.parse(db.prepare("SELECT json_group_object(k,n) c FROM (SELECT v.key k,count(*) n FROM workspaces w,json_each(w.document,'$.votes') v WHERE json_extract(v.value,'$.choice')='more' GROUP BY v.key)").first().c);
  const ranked=ranking(items,s.paused?blank():s,counts,q?0:Math.floor(Date.now()/3600000));
  if(!s.paused){s.feeds++;if(q&&!link&&b.remember)s.terms=[q,...s.terms.filter(x=>x!==q)].slice(0,12);
  s.batch={id:crypto.randomUUID(),orders:ranked.orders,titles:Object.fromEntries(items.map(t=>[key(t),t.title]))};save();}
- return json({items:ranked.cards,batch:s.paused?null:s.batch.id,direct:!!direct,hasNext:!!q&&offset<1000&&remote.some(r=>r.hasNext),search:remote.some(r=>r.available)});}
+ return json({items:ranked.cards,batch:s.paused?null:s.batch.id,direct:!!direct,indexed:!!indexed,hasNext:!!q&&offset<1000&&remote.some(r=>r.hasNext),search:remote.some(r=>r.available)});}
  if(post&&p==='/v1/rate'){
  ensure(!s.paused&&s.batch?.id===b.batch&&Object.hasOwn(s.batch.titles,b.key),'refresh_results',409);ensure(['more','less'].includes(b.choice),'invalid_choice');
  if(!s.votes[b.key]&&b.choice==='more'&&b.key.startsWith('track:'))s.samples=[...s.samples,{key:b.key,ranks:s.batch.orders.map(a=>1+a.indexOf(b.key))}].slice(-500);

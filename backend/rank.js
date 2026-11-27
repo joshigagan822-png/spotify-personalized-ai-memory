@@ -2,7 +2,7 @@ export const key=t=>t.type+':'+t.id;
 export function ranking(items,state,counts,offset=0){
  const cards=items.map((t,index)=>{
   const k=key(t),text=(t.title+' '+t.artist).toLowerCase();
-  const artist=state.artists.find(a=>t.artist.toLowerCase().split(', ').includes(a.toLowerCase()));
+  const artist=state.artists.find(a=>(t.artist.toLowerCase()===a.toLowerCase() || t.artist.toLowerCase().split(', ').includes(a.toLowerCase())));
   const term=state.terms.find(q=>text.includes(q.toLowerCase())),v=state.votes[k]?.choice;
   const taste=(artist?3:0)+(term?1:0);
   return {...t,key:k,taste,score:taste+(v==='more'?10:v==='less'?-10:0),pop:counts[k]||0,

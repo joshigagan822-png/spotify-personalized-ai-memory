@@ -1,7 +1,13 @@
+FROM python:3.13-slim AS catalog
+WORKDIR /build
+COPY scripts/index-catalog.py .
+RUN python index-catalog.py catalog-index.sqlite
+
 FROM node:24-slim
 RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 WORKDIR /app
 COPY --chown=node:node . .
+COPY --from=catalog --chown=node:node /build/catalog-index.sqlite ./backend/catalog-index.sqlite
 RUN mkdir -p runtime && chown node:node runtime
 USER node
 ENV HOST=0.0.0.0 PORT=8000
