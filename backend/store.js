@@ -1,11 +1,7 @@
-import demo from '../data/demo.json' with {type:'json'};
-import { replay } from './replay.js';
-import { Problem, ensure, purge } from './memory.js';
-
-export const profiles=demo.users.map(({subject_id,cohort,primary_surface})=>({subject_id,cohort,primary_surface}));
+export function ensure(ok,message,status=422){if(!ok)throw Object.assign(Error(message),{status});}
+export const blank=()=>({version:2,artists:[],terms:[],votes:{},samples:[],paused:false,feeds:0});
 const hex=bytes=>Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');
 async function digest(value) {return hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)));}
-export const clock=s=>new Date(Date.parse(s.clock.at) + Date.now()-s.clock.started).toISOString();
 
 export async function sessionFor(request,db) {
   const bearer=request.headers.get('Authorization');
@@ -16,17 +12,6 @@ export async function sessionFor(request,db) {
   if (!raw) return null;
   return db.prepare('SELECT * FROM sessions WHERE digest=? AND expires>?').bind(await digest(raw),Date.now()).first();
 }
-export async function startSession(db,subject,previous) {
-  const user=demo.users.find(u=>u.subject_id===subject);
-  ensure(user,'unknown_demo_profile',404);
-  const reviewer=(previous?.workspace_id?.startsWith('account/') ? null : previous?.reviewer) || crypto.randomUUID(), workspace=reviewer+'/'+subject;
-  const history=demo.events.filter(e=>e.subject_id===subject);
-  const last=history.filter(e=>e.event_type==='ai_interaction').at(-1);
-  const at=new Date(Date.parse(last.received_at)+60000).toISOString();
-  const {state}=replay(user,history,at);
-  state.clock={at,started:Date.now()};
-  return issueSession(db,workspace,subject,reviewer,state);
-}
 export async function issueSession(db,workspace,subject,reviewer,state) {
   const raw=hex(crypto.getRandomValues(new Uint8Array(32)));
   const hash=await digest(raw);
@@ -35,25 +20,6 @@ export async function issueSession(db,workspace,subject,reviewer,state) {
     db.prepare('INSERT INTO sessions(digest,workspace_id,reviewer,expires) VALUES(?,?,?,?)').bind(hash,workspace,reviewer,Date.now()+86400000)
   ]);
   return raw;
-}
-export async function readState(db,id) {
-  const row=await db.prepare('SELECT revision, document FROM workspaces WHERE id=?').bind(id).first();
-  ensure(row,'session_expired',401);
-  const state=JSON.parse(row.document);
-  purge(state,clock(state));
-  return {state,revision:row.revision};
-}
-// Graph edges, vectors, queue receipts and consent share one atomic revision.
-// A concurrent correction causes a fresh read instead of overwriting newer state.
-export async function change(db,id,action) {
-  for (let attempt=0;attempt<5;attempt++) {
-    const {state,revision}=await readState(db,id);
-    const result=action(state);
-    const changed=await db.prepare('UPDATE workspaces SET document=?, revision=revision+1 WHERE id=? AND revision=?')
-      .bind(JSON.stringify(state),id,revision).run();
-    if(changed.meta.changes===1) return result;
-  }
-  throw new Problem('concurrent_update_retry',409);
 }
 export async function limit(db,key,max) {
   const minute=Math.floor(Date.now()/60000);
