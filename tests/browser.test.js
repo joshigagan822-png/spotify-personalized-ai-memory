@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
-import {mkdtemp,readFile,rm} from 'node:fs/promises';
+import {mkdtemp,rm} from 'node:fs/promises';
 import {existsSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -20,17 +20,24 @@ async function until(fn){
 test('desktop and narrow listening desk supports account signup, feedback and guest logout',
   {skip:!chrome,timeout:90000},async t=>{
   const dir=await mkdtemp(join(tmpdir(),'listening-ui-'));
+  async function availablePort(){
   const reserve=createServer();
   await new Promise(resolve=>reserve.listen(0,'127.0.0.1',resolve));
   const port=reserve.address().port;
   await new Promise(resolve=>reserve.close(resolve));
+  return port;
+  }
+  const port=await availablePort();
   const app=spawn(process.execPath,['server.js','--port',String(port)],{env:{...process.env,DATABASE_PATH:join(dir,'test.sqlite')},stdio:'ignore'});
-  const browser=spawn(chrome,['--headless','--no-sandbox','--disable-dev-shm-usage','--remote-debugging-port=0','--user-data-dir='+dir+'/browser','about:blank'],{stdio:'ignore'});
+  const debug=await availablePort();
+  const browser=spawn(chrome,['--headless','--no-sandbox','--disable-dev-shm-usage','--remote-debugging-port='+debug,'--user-data-dir='+dir+'/browser','about:blank'],{stdio:'ignore'});
   t.after(async()=>{browser.kill();app.kill();await delay(300);await rm(dir,{recursive:true,force:true,maxRetries:5,retryDelay:200});});
   const origin='http://127.0.0.1:'+port;
   await until(async()=>(await fetch(origin+'/health/ready')).ok);
-  const debug=await until(async()=>(await readFile(dir+'/browser/DevToolsActivePort','utf8')).split('\n')[0]);
-  const pages=await (await fetch('http://127.0.0.1:'+debug+'/json')).json();
+  const pages=await until(async()=>{
+    const targets=await (await fetch('http://127.0.0.1:'+debug+'/json')).json();
+    return targets.some(target=>target.type==='page') && targets;
+  });
   const ws=new WebSocket(pages.find(p=>p.type==='page').webSocketDebuggerUrl);
   await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject;});
   t.after(()=>ws.close());

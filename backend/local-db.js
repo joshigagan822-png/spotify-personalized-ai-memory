@@ -2,14 +2,14 @@ import {DatabaseSync} from 'node:sqlite';
 import fs from 'node:fs';
 import path from 'node:path';
 
-// This small adapter gives local SQLite the same prepared-statement interface as D1.
+// Open the listener workspace database and apply its initial schema on first use.
 export function openLocal(filename) {
   if(filename!==':memory:') fs.mkdirSync(path.dirname(filename),{recursive:true});
   const sql=new DatabaseSync(filename);
   sql.exec('PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=1500; PRAGMA secure_delete=ON;');
   const version=sql.prepare('PRAGMA user_version').get().user_version;
   if(version===0) {
-    const migration=fs.readFileSync(new URL('../drizzle/0000_pilot.sql',import.meta.url),'utf8');
+    const migration=fs.readFileSync(new URL('../drizzle/0000_workspace.sql',import.meta.url),'utf8');
     sql.exec('BEGIN IMMEDIATE');
     try {sql.exec(migration);sql.exec('PRAGMA user_version=1; COMMIT');}
     catch(e) {sql.exec('ROLLBACK');throw e;}
