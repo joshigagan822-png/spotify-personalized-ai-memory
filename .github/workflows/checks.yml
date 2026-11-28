@@ -12,11 +12,11 @@ jobs:
       - run: npm run build
       - run: node --check dist/server/index.js
       - name: Build deployment image
-        run: docker build -t listening-memory:review .
+        run: docker build -t spotify-memory:review .
       - name: Scan deployment image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: listening-memory:review
+          image-ref: spotify-memory:review
           severity: CRITICAL,HIGH
           ignore-unfixed: true
           exit-code: '1'

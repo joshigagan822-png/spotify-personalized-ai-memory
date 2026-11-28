@@ -64,12 +64,6 @@ The Node 24 server serves HTML, JS, CSS and a same-origin JSON API. SQLite store
 
 **Evaluation.** Three orderings share the same listener, candidate set and tie-breaker. A song’s first positive vote supplies a held-out target. Each observation records its pre-vote rank, with the latest 500 retained per workspace. Community popularity uses stored positive votes from registered account workspaces. Guest feedback stays within the guest experience. Legacy numbered demo IDs are ignored because they cannot identify a real recording or artist. Personal Quality review uses that workspace; the offline notebook aggregates account workspaces. A cleared, undone or reversed observation is excluded. The experiment measures observed feedback; small or self-selected samples cannot establish general improvement.
 
-| Method | Published real-account observations | Hit Rate@5 | Mean rank |
-|---|---:|---:|---:|
-| Community popularity | 0 | — | — |
-| Artist and search memory | 0 | — | — |
-| Memory with feedback | 0 | — | — |
-
 No production listener sample was exported for this release. Run `npm run evaluate` or [the notebook](analysis/listening_eda.ipynb) against an authorized SQLite copy for aggregate results from that database. Set `DATABASE_PATH` to the copy. A missing or incompatible database fails evaluation; a valid database without eligible feedback returns zero observations and null metrics. The underlying [account feedback SQL](analysis/account-feedback.sql) can also be run directly on the copy.
 
 ## API and deployment
