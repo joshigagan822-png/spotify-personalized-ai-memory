@@ -62,7 +62,7 @@ The Node 24 server serves HTML, JS, CSS and a same-origin JSON API. SQLite store
 
 **Ranking.** A saved artist match adds three points and a previous search match adds one. More/less feedback adds or subtracts ten for that specific recording or collection. Reasons are generated from those same inputs. Home rotates ties hourly; search keeps provider/featured order for ties. Pausing suspends personal ranking, search-history collection and new ratings. You can still edit or clear saved preferences. Undo removes a rating and its associated ranking observation.
 
-**Evaluation.** Three orderings share the same listener, candidate set and tie-breaker. A song’s first positive vote supplies a held-out target. Each observation records its pre-vote rank, with the latest 500 retained per workspace. Community popularity uses prior positive ratings. Personal Quality review uses that workspace; the offline notebook aggregates account workspaces. A cleared, undone or reversed observation is excluded. The experiment measures observed feedback; small or self-selected samples cannot establish general improvement.
+**Evaluation.** Three orderings share the same listener, candidate set and tie-breaker. A song’s first positive vote supplies a held-out target. Each observation records its pre-vote rank, with the latest 500 retained per workspace. Community popularity uses stored positive votes from registered account workspaces. Guest feedback stays within the guest experience. Legacy numbered demo IDs are ignored because they cannot identify a real recording or artist. Personal Quality review uses that workspace; the offline notebook aggregates account workspaces. A cleared, undone or reversed observation is excluded. The experiment measures observed feedback; small or self-selected samples cannot establish general improvement.
 
 | Method | Published real-account observations | Hit Rate@5 | Mean rank |
 |---|---:|---:|---:|
@@ -70,7 +70,7 @@ The Node 24 server serves HTML, JS, CSS and a same-origin JSON API. SQLite store
 | Artist and search memory | 0 | — | — |
 | Memory with feedback | 0 | — | — |
 
-No production listener sample was exported for this release. Run `npm run evaluate` or [the notebook](analysis/listening_eda.ipynb) against an authorized SQLite copy for current aggregate results.
+No production listener sample was exported for this release. Run `npm run evaluate` or [the notebook](analysis/listening_eda.ipynb) against an authorized SQLite copy for aggregate results from that database. Set `DATABASE_PATH` to the copy. A missing or incompatible database fails evaluation; a valid database without eligible feedback returns zero observations and null metrics. The underlying [account feedback SQL](analysis/account-feedback.sql) can also be run directly on the copy.
 
 ## API and deployment
 
@@ -113,7 +113,7 @@ The public deployment runs on Render. Its free local filesystem is temporary. A 
 | `npm run evaluate` | Prints account-level aggregate ranking metrics from the database selected by `DATABASE_PATH`. |
 | `npm run build` | Copies the server, backend, migrations and frontend into `dist/server`. Generate the catalog index first to include it. |
 
-GitHub Actions runs evaluation, tests, build and syntax checks, builds the Docker image and scans it for vulnerabilities.
+GitHub Actions tests evaluation with an isolated database, runs the test suite, performs build and syntax checks, builds the Docker image and scans it for vulnerabilities.
 
 ### Password recovery
 

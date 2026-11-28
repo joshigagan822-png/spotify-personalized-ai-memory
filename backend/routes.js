@@ -20,12 +20,12 @@ function read(db,id){
  const old=JSON.parse(db.prepare('SELECT document FROM workspaces WHERE id=?').bind(id).first().document);
  if(old.version===2)return old;
  const s=blank();s.paused=old.control==='paused'||old.consent==='revoked';
- for(const m of old.memories||[])if(m.status==='active'&&m.memory_type==='explicit_preference'&&/^artist_\d+$/.test(m.entity_id)){
-  const a=picks[Number(m.entity_id.slice(7))-1]?.artist;if(a&&!s.artists.includes(a))s.artists.push(a);
+ // Legacy ordinal IDs had no stable mapping to Spotify artists or recordings.
+ for(const [id,choice] of Object.entries(old.trackVotes||{})){
+  if(!/^spotify:[A-Za-z0-9]{22}$/.test(id)||!['more','less'].includes(choice))continue;
+  const t=featured.find(item=>item.id===id.slice(8));
+  if(t)s.votes[key(t)]={choice,title:t.title};
  }
- for(const [k,choice] of Object.entries(old.trackVotes||{})){
- const t=k.startsWith('spotify:')?featured.find(t=>t.id===k.slice(8)):picks[Number(k.split('_')[1])-1];
- if(t)s.votes[key(t)]={choice,title:t.title};}
  return s;
 }
 export async function handle(req,env,ctx,asset){
@@ -82,7 +82,7 @@ export async function handle(req,env,ctx,asset){
  if(indexed)remote[trackIndex]={...indexed,available:false};
  const local=offset?[]:featured.filter(t=>types.includes(t.type)&&(!q||(t.title+' '+t.artist+' '+(t.aliases||'')).toLowerCase().includes(q.toLowerCase())));
  const items=[...new Map([...local,...remote.flatMap(r=>r.tracks),...(direct?[direct]:[])].map(t=>[key(t),t])).values()];
- const counts=JSON.parse(db.prepare("SELECT json_group_object(k,n) c FROM (SELECT v.key k,count(*) n FROM workspaces w,json_each(w.document,'$.votes') v WHERE json_extract(v.value,'$.choice')='more' GROUP BY v.key)").first().c);
+ const counts=JSON.parse(db.prepare("SELECT json_group_object(k,n) c FROM (SELECT v.key k,count(*) n FROM accounts a JOIN workspaces w ON w.id='account/'||a.subject AND w.subject_id=a.subject JOIN json_each(w.document,'$.votes') v WHERE json_extract(w.document,'$.version')=2 AND json_extract(v.value,'$.choice')='more' GROUP BY v.key)").first().c);
  const ranked=ranking(items,s.paused?blank():s,counts,q?0:Math.floor(Date.now()/3600000));
  if(!s.paused){s.feeds++;if(q&&!link&&b.remember)s.terms=[q,...s.terms.filter(x=>x!==q)].slice(0,12);
  s.batch={id:crypto.randomUUID(),orders:ranked.orders,titles:Object.fromEntries(items.map(t=>[key(t),t.title]))};save();}
