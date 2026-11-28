@@ -4,6 +4,7 @@ COPY scripts/index-catalog.py .
 RUN python index-catalog.py catalog-index.sqlite
 
 FROM node:24-slim
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 WORKDIR /app
 COPY --chown=node:node . .
